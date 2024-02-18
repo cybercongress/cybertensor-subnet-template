@@ -1,0 +1,8 @@
+{
+    "subnet_repositories": [
+        {
+            "name": "42",
+            "url": "42"
+        }
+    ]
+}

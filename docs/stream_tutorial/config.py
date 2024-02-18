@@ -1,0 +1,122 @@
+import cybertensor as ct
+import argparse
+import os
+
+
+def check_config(cls, config: "ct.Config"):
+    ct.axon.check_config(config)
+    ct.logging.check_config(config)
+    full_path = os.path.expanduser(
+        "{}/{}/{}/{}".format(
+            config.logging.logging_dir,
+            config.wallet.get("name", ct.defaults.wallet.name),
+            config.wallet.get("hotkey", ct.defaults.wallet.hotkey),
+            config.miner.name,
+        )
+    )
+    config.miner.full_path = os.path.expanduser(full_path)
+    if not os.path.exists(config.miner.full_path):
+        os.makedirs(config.miner.full_path)
+
+
+def get_config() -> "ct.Config":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--axon.port", type=int, default=8098, help="Port to run the axon on."
+    )
+    # Subtensor network to connect to
+    parser.add_argument(
+        "--cwtensor.network",
+        default="finney",
+        help="Bittensor network to connect to.",
+    )
+    # Chain endpoint to connect to
+    parser.add_argument(
+        "--cwtensor.chain_endpoint",
+        default="wss://entrypoint-finney.opentensor.ai:443",
+        help="Chain endpoint to connect to.",
+    )
+    # Adds override arguments for network and netuid.
+    parser.add_argument(
+        "--netuid", type=int, default=1, help="The chain subnet uid."
+    )
+
+    parser.add_argument(
+        "--miner.root",
+        type=str,
+        help="Trials for this miner go in miner.root / (wallet_cold - wallet_hot) / miner.name ",
+        default="~/.bittensor/miners/",
+    )
+    parser.add_argument(
+        "--miner.name",
+        type=str,
+        help="Trials for this miner go in miner.root / (wallet_cold - wallet_hot) / miner.name ",
+        default="Bittensor Miner",
+    )
+
+    # Run config.
+    parser.add_argument(
+        "--miner.blocks_per_epoch",
+        type=str,
+        help="Blocks until the miner sets weights on chain",
+        default=100,
+    )
+
+    # Switches.
+    parser.add_argument(
+        "--miner.no_set_weights",
+        action="store_true",
+        help="If True, the miner does not set weights.",
+        default=False,
+    )
+    parser.add_argument(
+        "--miner.no_serve",
+        action="store_true",
+        help="If True, the miner doesnt serve the axon.",
+        default=False,
+    )
+    parser.add_argument(
+        "--miner.no_start_axon",
+        action="store_true",
+        help="If True, the miner doesnt start the axon.",
+        default=False,
+    )
+
+    # Mocks.
+    parser.add_argument(
+        "--miner.mock_cwtensor",
+        action="store_true",
+        help="If True, the miner will allow non-registered hotkeys to mine.",
+        default=False,
+    )
+
+    # Adds cwtensor specific arguments i.e. --cwtensor.chain_endpoint ... --cwtensor.network ...
+    ct.cwtensor.add_args(parser)
+
+    # Adds logging specific arguments i.e. --logging.debug ..., --logging.trace .. or --logging.logging_dir ...
+    ct.logging.add_args(parser)
+
+    # Adds wallet specific arguments i.e. --wallet.name ..., --wallet.hotkey ./. or --wallet.path ...
+    ct.Wallet.add_args(parser)
+
+    # Adds axon specific arguments i.e. --axon.port ...
+    ct.axon.add_args(parser)
+
+    # Activating the parser to read any command-line inputs.
+    # To print help message, run python3 template/miner.py --help
+    config = ct.config(parser)
+
+    # Logging captures events for diagnosis or understanding miner's behavior.
+    config.full_path = os.path.expanduser(
+        "{}/{}/{}/netuid{}/{}".format(
+            config.logging.logging_dir,
+            config.wallet.name,
+            config.wallet.hotkey,
+            config.netuid,
+            "miner",
+        )
+    )
+    # Ensure the directory for logging exists, else create one.
+    if not os.path.exists(config.full_path):
+        os.makedirs(config.full_path, exist_ok=True)
+    return config
