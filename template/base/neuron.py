@@ -27,6 +27,8 @@ from abc import ABC, abstractmethod
 from template.utils.config import check_config, add_args, config
 from template.utils.misc import ttl_get_block
 from template import __spec_version__ as spec_version
+from template.mock import MockSubtensor, MockMetagraph
+# from cybertensor.mock.wallet_mock import MockWallet
 
 
 class BaseNeuron(ABC):
@@ -77,15 +79,21 @@ class BaseNeuron(ABC):
         ct.logging.info("Setting up bittensor objects.")
 
         # The wallet holds the cryptographic key pairs for the miner.
-        self.wallet = ct.Wallet(config=self.config)
+        if self.config.mock:
+            self.wallet = ct.MockWallet(config=self.config)
+            self.cwtensor = MockSubtensor(
+                self.config.netuid, wallet=self.wallet
+            )
+            self.metagraph = MockMetagraph(
+                self.config.netuid, subtensor=self.cwtensor
+            )
+        else:
+            self.wallet = ct.Wallet(config=self.config)
+            self.cwtensor = ct.cwtensor(config=self.config)
+            self.metagraph = self.cwtensor.metagraph(self.config.netuid)
+
         ct.logging.info(f"Wallet: {self.wallet}")
-
-        # The cwtensor is our connection to the Cybernet network.
-        self.cwtensor = ct.cwtensor(config=self.config)
-        ct.logging.info(f"Subtensor: {self.cwtensor}")
-
-        # The metagraph holds the state of the network, letting us know about other validators and miners.
-        self.metagraph = self.cwtensor.metagraph(self.config.netuid)
+        ct.logging.info(f"Cwtensor: {self.cwtensor}")
         ct.logging.info(f"Metagraph: {self.metagraph}")
 
         # Check if the miner is registered on the Bittensor network before proceeding further.

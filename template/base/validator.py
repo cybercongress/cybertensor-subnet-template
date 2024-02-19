@@ -22,6 +22,7 @@
 import copy
 import torch
 import asyncio
+import argparse
 import threading
 import cybertensor as ct
 
@@ -29,12 +30,18 @@ from typing import List
 from traceback import print_exception
 
 from template.base.neuron import BaseNeuron
+from template.mock import MockDendrite
+from template.utils.config import add_validator_args
 
 
 class BaseValidatorNeuron(BaseNeuron):
     """
     Base class for Bittensor validators. Your validator should inherit from this class.
     """
+    @classmethod
+    def add_args(cls, parser: argparse.ArgumentParser):
+        super().add_args(parser)
+        add_validator_args(cls, parser)
 
     def __init__(self, config=None):
         super().__init__(config=config)
@@ -43,12 +50,17 @@ class BaseValidatorNeuron(BaseNeuron):
         self.hotkeys = copy.deepcopy(self.metagraph.hotkeys)
 
         # Dendrite lets us send messages to other nodes (axons) in the network.
-        self.dendrite = ct.dendrite(wallet=self.wallet)
+        if self.config.mock:
+            self.dendrite = MockDendrite(wallet=self.wallet)
+        else:
+            self.dendrite = ct.dendrite(wallet=self.wallet)
         ct.logging.info(f"Dendrite: {self.dendrite}")
 
         # Set up initial scoring weights for validation
         ct.logging.info("Building validation weights.")
-        self.scores = torch.zeros_like(self.metagraph.S, dtype=torch.float32)
+        self.scores = torch.zeros(
+            self.metagraph.n, dtype=torch.float32, device=self.device
+        )
 
         # Init sync with the network. Updates the metagraph.
         self.sync()
@@ -79,6 +91,9 @@ class BaseValidatorNeuron(BaseNeuron):
                 self.cwtensor.serve_axon(
                     netuid=self.config.netuid,
                     axon=self.axon,
+                )
+                ct.logging.info(
+                    f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} with netuid: {self.config.netuid}"
                 )
             except Exception as e:
                 ct.logging.error(f"Failed to serve Axon with exception: {e}")
@@ -119,10 +134,6 @@ class BaseValidatorNeuron(BaseNeuron):
 
         # Check that validator is registered on the network.
         self.sync()
-
-        ct.logging.info(
-            f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} with netuid: {self.config.netuid}"
-        )
 
         ct.logging.info(f"Validator starting at block: {self.block}")
 
@@ -304,10 +315,16 @@ class BaseValidatorNeuron(BaseNeuron):
             # Replace any NaN values in rewards with 0.
             rewards = torch.nan_to_num(rewards, 0)
 
+        # Check if `uids` is already a tensor and clone it to avoid the warning.
+        if isinstance(uids, torch.Tensor):
+            uids_tensor = uids.clone().detach()
+        else:
+            uids_tensor = torch.tensor(uids).to(self.device)
+
         # Compute forward pass rewards, assumes uids are mutually exclusive.
         # shape: [ metagraph.n ]
         scattered_rewards: torch.FloatTensor = self.scores.scatter(
-            0, torch.tensor(uids).to(self.device), rewards
+            0, uids_tensor, rewards
         ).to(self.device)
         ct.logging.debug(f"Scattered rewards: {rewards}")
 
