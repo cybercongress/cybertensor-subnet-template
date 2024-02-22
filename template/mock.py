@@ -55,7 +55,8 @@ class MockMetagraph(ct.metagraph):
 
 class MockDendrite(ct.dendrite):
     """
-    Replaces a real bittensor network request with a mock request that just returns some static response for all axons that are passed and adds some random delay.
+    Replaces a real cybertensor network request with a mock request that just returns some static response for all axons
+    that are passed and adds some random delay.
     """
     def __init__(self, wallet):
         super().__init__(wallet)

@@ -19,17 +19,17 @@
 import os
 import torch
 import argparse
-import bittensor as bt
+import cybertensor as ct
 from loguru import logger
 
 
-def check_config(cls, config: "bt.Config"):
+def check_config(cls, config: "ct.Config"):
     r"""Checks/validates the config namespace object."""
-    bt.logging.check_config(config)
+    ct.logging.check_config(config)
 
     full_path = os.path.expanduser(
         "{}/{}/{}/netuid{}/{}".format(
-            config.logging.logging_dir,  # TODO: change from ~/.bittensor/miners to ~/.bittensor/neurons
+            config.logging.logging_dir,  # TODO: change from ~/.cybertensor/miners to ~/.cybertensor/neurons
             config.wallet.name,
             config.wallet.hotkey,
             config.netuid,
@@ -215,9 +215,9 @@ def add_validator_args(cls, parser):
     )
 
     parser.add_argument(
-        "--neuron.vpermit_tao_limit",
+        "--neuron.vpermit_limit",
         type=int,
-        help="The maximum number of TAO allowed to query a validator with a vpermit.",
+        help="The maximum number of tokens allowed to query a validator with a vpermit.",
         default=4096,
     )
 
@@ -241,9 +241,9 @@ def config(cls):
     Returns the configuration object specific to this miner or validator after adding relevant arguments.
     """
     parser = argparse.ArgumentParser()
-    bt.wallet.add_args(parser)
-    bt.subtensor.add_args(parser)
-    bt.logging.add_args(parser)
-    bt.axon.add_args(parser)
+    ct.Wallet.add_args(parser)
+    ct.subtensor.add_args(parser)
+    ct.logging.add_args(parser)
+    ct.axon.add_args(parser)
     cls.add_args(parser)
-    return bt.config(parser)
+    return ct.Config(parser)

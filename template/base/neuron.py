@@ -33,9 +33,11 @@ from template.mock import MockSubtensor, MockMetagraph
 
 class BaseNeuron(ABC):
     """
-    Base class for Bittensor miners. This class is abstract and should be inherited by a subclass. It contains the core logic for all neurons; validators and miners.
+    Base class for cybertensor miners. This class is abstract and should be inherited by a subclass. It contains
+    the core logic for all neurons; validators and miners.
 
-    In addition to creating a wallet, cwtensor, and metagraph, this class also handles the synchronization of the network state via a basic checkpointing mechanism based on epoch length.
+    In addition to creating a wallet, cwtensor, and metagraph, this class also handles the synchronization
+    of the network state via a basic checkpointing mechanism based on epoch length.
     """
 
     @classmethod
@@ -74,9 +76,9 @@ class BaseNeuron(ABC):
         # Log the configuration for reference.
         ct.logging.info(self.config)
 
-        # Build Bittensor objects
-        # These are core Bittensor classes to interact with the network.
-        ct.logging.info("Setting up bittensor objects.")
+        # Build cybertensor objects
+        # These are core cybertensor classes to interact with the network.
+        ct.logging.info("Setting up cybertensor objects.")
 
         # The wallet holds the cryptographic key pairs for the miner.
         if self.config.mock:
@@ -96,7 +98,7 @@ class BaseNeuron(ABC):
         ct.logging.info(f"Cwtensor: {self.cwtensor}")
         ct.logging.info(f"Metagraph: {self.metagraph}")
 
-        # Check if the miner is registered on the Bittensor network before proceeding further.
+        # Check if the miner is registered on the cybertensor network before proceeding further.
         self.check_registered()
 
         # Each miner gets a unique identity (UID) in the network for differentiation.
@@ -166,10 +168,12 @@ class BaseNeuron(ABC):
 
     def save_state(self):
         ct.logging.warning(
-            "save_state() not implemented for this neuron. You can implement this function to save model checkpoints or other useful data."
+            "save_state() not implemented for this neuron. You can implement this function to save model checkpoints "
+            "or other useful data."
         )
 
     def load_state(self):
         ct.logging.warning(
-            "load_state() not implemented for this neuron. You can implement this function to load model checkpoints or other useful data."
+            "load_state() not implemented for this neuron. You can implement this function to load model checkpoints "
+            "or other useful data."
         )

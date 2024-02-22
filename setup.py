@@ -28,27 +28,27 @@ from setuptools import setup, find_packages
 from pkg_resources import parse_requirements
 
 
-def read_requirements(path):
-    with open(path, "r") as f:
-        requirements = f.read().splitlines()
-        processed_requirements = []
+def read_requirements(path: str) -> list[str]:
+    with open(path, "r") as _f:
+        _requirements = _f.read().splitlines()
+        _processed_requirements = []
 
-        for req in requirements:
+        for _req in _requirements:
             # For git or other VCS links
-            if req.startswith("git+") or "@" in req:
-                pkg_name = re.search(r"(#egg=)([\w\-_]+)", req)
-                if pkg_name:
-                    processed_requirements.append(pkg_name.group(2))
+            if _req.startswith("git+") or "@" in _req:
+                _pkg_name = re.search(r"(#egg=)([\w\-_]+)", _req)
+                if _pkg_name:
+                    _processed_requirements.append(_pkg_name.group(2))
                 else:
                     # You may decide to raise an exception here,
                     # if you want to ensure every VCS link has an #egg=<package_name> at the end
                     continue
             else:
-                processed_requirements.append(req)
-        return processed_requirements
+                _processed_requirements.append(_req)
+        return _processed_requirements
 
 
-requirements = read_requirements("requirements.txt")
+requirements = read_requirements(path="requirements.txt")
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
