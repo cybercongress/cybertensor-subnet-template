@@ -17,7 +17,6 @@
 # DEALINGS IN THE SOFTWARE.
 
 import copy
-import typing
 
 import cybertensor as ct
 
@@ -27,8 +26,7 @@ from abc import ABC, abstractmethod
 from template.utils.config import check_config, add_args, config
 from template.utils.misc import ttl_get_block
 from template import __spec_version__ as spec_version
-from template.mock import MockSubtensor, MockMetagraph
-# from cybertensor.mock.wallet_mock import MockWallet
+from template.mock import MockCwtensor, MockMetagraph
 
 
 class BaseNeuron(ABC):
@@ -83,11 +81,11 @@ class BaseNeuron(ABC):
         # The wallet holds the cryptographic key pairs for the miner.
         if self.config.mock:
             self.wallet = ct.MockWallet(config=self.config)
-            self.cwtensor = MockSubtensor(
+            self.cwtensor = MockCwtensor(
                 self.config.netuid, wallet=self.wallet
             )
             self.metagraph = MockMetagraph(
-                self.config.netuid, subtensor=self.cwtensor
+                self.config.netuid, cwtensor=self.cwtensor
             )
         else:
             self.wallet = ct.Wallet(config=self.config)

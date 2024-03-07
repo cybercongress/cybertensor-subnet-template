@@ -16,10 +16,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import os
-import torch
 import argparse
+import os
+
 import cybertensor as ct
+import torch
 from loguru import logger
 
 
@@ -242,7 +243,7 @@ def config(cls):
     """
     parser = argparse.ArgumentParser()
     ct.Wallet.add_args(parser)
-    ct.subtensor.add_args(parser)
+    ct.cwtensor.add_args(parser)
     ct.logging.add_args(parser)
     ct.axon.add_args(parser)
     cls.add_args(parser)

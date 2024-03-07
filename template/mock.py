@@ -1,13 +1,12 @@
-import time
-
 import asyncio
 import random
-import cybertensor as ct
-
+import time
 from typing import List
 
+import cybertensor as ct
 
-class MockSubtensor(ct.MockSubtensor):
+
+class MockCwtensor(ct.MockCwtensor):
     def __init__(self, netuid, n=16, wallet=None, network="mock"):
         super().__init__(network=network)
 
@@ -36,14 +35,14 @@ class MockSubtensor(ct.MockSubtensor):
 
 
 class MockMetagraph(ct.metagraph):
-    def __init__(self, netuid=1, network="mock", subtensor=None):
+    def __init__(self, netuid=1, network="mock", cwtensor=None):
         super().__init__(
             netuid=netuid, network=network, sync=False
         )
 
-        if subtensor is not None:
-            self.subtensor = subtensor
-        self.sync(subtensor=subtensor)
+        if cwtensor is not None:
+            self.cwtensor = cwtensor
+        self.sync(cwtensor=cwtensor)
 
         for axon in self.axons:
             axon.ip = "127.0.0.0"
@@ -58,17 +57,18 @@ class MockDendrite(ct.dendrite):
     Replaces a real cybertensor network request with a mock request that just returns some static response for all axons
     that are passed and adds some random delay.
     """
+
     def __init__(self, wallet):
         super().__init__(wallet)
 
     async def forward(
-        self,
-        axons: List[ct.axon],
-        synapse: ct.Synapse = ct.Synapse(),
-        timeout: float = 12,
-        deserialize: bool = True,
-        run_async: bool = True,
-        streaming: bool = False,
+            self,
+            axons: List[ct.axon],
+            synapse: ct.Synapse = ct.Synapse(),
+            timeout: float = 12,
+            deserialize: bool = True,
+            run_async: bool = True,
+            streaming: bool = False,
     ):
 
         if streaming:
