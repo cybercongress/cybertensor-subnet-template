@@ -8,12 +8,12 @@ If you prefer to jump right into a complete stand-alone example, see:
 
 Start your miner:
 ```bash
-python miner.py --netuid 8 --wallet.name default --wallet.hotkey miner --subtensor.network test --axon.port 10000 --logging.trace
+python miner.py --netuid=8 --wallet.name=default --wallet.hotkey miner --cwtensor.network test --axon.port 10000 --logging.trace
 ```
 
 Run the client:
 ```bash
-python client.py --netuid 8 --my_uid 1 --network test
+python client.py --netuid=8 --my_uid=1 --network=test
 ```
 
 ## Overview
@@ -33,7 +33,7 @@ You will need to implement two methods:
 These two methods are the core of your streaming protocol. The first method process_streaming_response is called as the response is being streamed from the network. It is responsible for handling the streaming response, such as parsing and accumulating data. The second method extract_response_json is  called after the response has been processed and is responsible for retrieving structured data to be post-processed in the dendrite in bittensor core code.
 
 ```python
-class StreamingSynapse(bittensor.Synapse, ABC):
+class StreamingSynapse(ct.Synapse, ABC):
     ...
     class BTStreamingResponse(_StreamingResponse):
         ...
@@ -71,7 +71,7 @@ See the full reference code at the bittensor [repo](https://github.com/opentenso
 #### Create your protocol
 Let's walk through how to create a protocol using the bittensor.StreamingSynapse class.
 ```python
-class MyStreamingSynapse(bt.StreamingSynapse):
+class MyStreamingSynapse(ct.StreamingSynapse):
     # define your expected data fields here as pydantic field objects
     # This allows you to control what information is passed along the network
     messages: List[str] = pydantic.Field(
@@ -156,7 +156,7 @@ This will generate the tokens to be streamed in this prompting example.
 
 For brevity we will not be building a full miner, but inspecting the central components.
 ```python
-class MyStreamPromptingMiner(bt.Miner):
+class MyStreamPromptingMiner(ct.Miner):
     ... # any relevant methods you'd need for your miner
 
     # define your server forward here
@@ -224,7 +224,7 @@ Here is a full example for reference:
 
 ```python
 class StreamingTemplateMiner(prompting.Miner):
-    def config(self) -> "bt.Config":
+    def config(self) -> "ct.Config":
         """
         Returns the configuration object specific to this miner.
 
@@ -232,11 +232,11 @@ class StreamingTemplateMiner(prompting.Miner):
         Currently, it sets up a basic configuration parser.
 
         Returns:
-            bt.Config: A configuration object with the miner's operational parameters.
+            ct.Config: A configuration object with the miner's operational parameters.
         """
         parser = argparse.ArgumentParser(description="Streaming Miner Configs")
         self.add_args(parser)
-        return bt.config(parser)
+        return ct.config(parser)
 
     def add_args(cls, parser: argparse.ArgumentParser):
         """
@@ -272,7 +272,7 @@ class StreamingTemplateMiner(prompting.Miner):
             miner. Developers can swap out the tokenizer, model, or adjust how streaming responses
             are generated to suit their specific applications.
         """
-        bt.logging.trace("In outer PROMPT()")
+        ct.logging.trace("In outer PROMPT()")
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
         # Simulated function to decode token IDs into strings. In a real-world scenario,
@@ -298,21 +298,21 @@ class StreamingTemplateMiner(prompting.Miner):
                 response, or the model being used. Developers can also introduce more sophisticated
                 processing steps or modify how tokens are sent back to the client.
             """
-            bt.logging.trace("In inner _PROMPT()")
+            ct.logging.trace("In inner _PROMPT()")
             input_ids = tokenizer(text, return_tensors="pt").input_ids.squeeze()
             buffer = []
-            bt.logging.debug(f"Input text: {text}")
-            bt.logging.debug(f"Input ids: {input_ids}")
+            ct.logging.debug(f"Input text: {text}")
+            ct.logging.debug(f"Input ids: {input_ids}")
              
             N = 3  # Number of tokens to send back to the client at a time
             for token in model(input_ids):
-                bt.logging.trace(f"appending token: {token}")
+                ct.logging.trace(f"appending token: {token}")
                 buffer.append(token)
                 # If buffer has N tokens, send them back to the client.
                 if len(buffer) == N:
                     time.sleep(0.1)
                     joined_buffer = "".join(buffer)
-                    bt.logging.debug(f"sedning tokens: {joined_buffer}")
+                    ct.logging.debug(f"sedning tokens: {joined_buffer}")
                     await send(
                         {
                             "type": "http.response.body",
@@ -320,7 +320,7 @@ class StreamingTemplateMiner(prompting.Miner):
                             "more_body": True,
                         }
                     )
-                    bt.logging.debug(f"Streamed tokens: {joined_buffer}")
+                    ct.logging.debug(f"Streamed tokens: {joined_buffer}")
                     buffer = []  # Clear the buffer for next batch of tokens
 
             # Send any remaining tokens in the buffer
@@ -333,12 +333,12 @@ class StreamingTemplateMiner(prompting.Miner):
                         "more_body": False,  # No more tokens to send
                     }
                 )
-                bt.logging.trace(f"Streamed tokens: {joined_buffer}")
+                ct.logging.trace(f"Streamed tokens: {joined_buffer}")
 
         message = synapse.messages[0]
-        bt.logging.trace(f"message in _prompt: {message}")
+        ct.logging.trace(f"message in _prompt: {message}")
         token_streamer = partial(_prompt, message)
-        bt.logging.trace(f"token streamer: {token_streamer}")
+        ct.logging.trace(f"token streamer: {token_streamer}")
         return synapse.create_streaming_response(token_streamer)
 ```
 
@@ -356,21 +356,21 @@ Steps:
 - Iterate over the async generator to extract the yielded tokens on the server side
 
 ```python
-
-# Import bittensor
-import bittensor as bt
+import asyncio
+# Import cybertensor
+import cybertensor as ct
 
 # Create your streaming synapse subclass object to house the request body
-syn = MyStreamingSynapse(
+syn = ct.MyStreamingSynapse(
     roles=["user"],
     messages=["hello this is a test of a streaming response. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."]
 )
 
 # Create a wallet instance that must be registered on the network
-wallet = bt.wallet(name="default", hotkey="default")
+wallet = ct.Wallet(name="default", hotkey="default")
 
 # Instantiate the metagraph
-metagraph = bt.metagraph(
+metagraph = ct.metagraph(
     netuid=8, network="test", sync=True, lite=False
 )
 
@@ -379,10 +379,9 @@ my_uid = 1
 axon = metagraph.axons[my_uid]
 
 # Create a Dendrite instance to handle client-side communication.
-dendrite = bt.dendrite(wallet=wallet)
+dendrite = ct.dendrite(wallet=wallet)
 
-
-This is an async function so we can use the `await` keyword when querying the server with the dendrite object.
+# This is an async function, so we can use the `await` keyword when querying the server with the dendrite object.
 async def main():
     # Send a request to the Axon using the Dendrite, passing in a StreamPrompting 
     # instance with roles and messages. The response is awaited, as the Dendrite 
@@ -424,12 +423,11 @@ If you would like to see a complete standalone example that only depends on bitt
 
 - client.py
 - streaming_miner.py
-- 
 
 # client.py
 ```python
-# Import bittensor and the text-prompting packages
-import bittensor as bt
+# Import cybertensor and the text-prompting packages
+import cybertensor as ct
 import prompting
 
 # Create a StreamPrompting synapse object to house the request body
@@ -439,11 +437,11 @@ syn = prompting.protocol.StreamPrompting(
 syn
 
 # create a wallet instance that must be registered on the network
-wallet = bt.wallet(name="default", hotkey="default")
+wallet = ct.Wallet(name="default", hotkey="default")
 wallet
 
 # instantiate the metagraph
-metagraph = bt.metagraph(
+metagraph = ct.metagraph(
     netuid=8, network="test", sync=True, lite=False
 )
 metagraph
@@ -453,7 +451,7 @@ axon = metagraph.axons[62]
 axon
 
 # Create a Dendrite instance to handle client-side communication.
-d = bt.dendrite(wallet=wallet)
+d = ct.dendrite(wallet=wallet)
 d
 
 

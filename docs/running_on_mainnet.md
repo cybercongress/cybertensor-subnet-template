@@ -1,12 +1,11 @@
-# Running Subnet on Mainnet
+# Running Subnet on Mainnet (Space-Pussy)
 
-This tutorial shows how to use the bittensor `btcli` to create a subnetwork and connect your incentive mechanism to it. 
+This tutorial shows how to use the cybertensor `ctcli` to create a subnetwork and connect your incentive mechanism to it. 
 
 **IMPORTANT:** Before attempting to register on mainnet, we strongly recommend that you:
-- First run [Running Subnet Locally](running_on_staging.md), and
-- Then run [Running on the Testnet](running_on_testnet.md).
+- run [Running Subnet Locally](running_on_staging.md).
 
-Your incentive mechanisms running on the mainnet are open to anyone. They emit real TAO. Creating these mechanisms incur a `lock_cost` in TAO.
+Your incentive mechanisms running on the mainnet are open to anyone. They emit real GPUSSY. Creating these mechanisms incur a `lock_cost` in GPUSSY.
 
 **DANGER**
 - Do not expose your private keys.
@@ -16,11 +15,11 @@ Your incentive mechanisms running on the mainnet are open to anyone. They emit r
 
 ## Prerequisites
 
-Before proceeding further, make sure that you have installed Bittensor. See the below instructions:
+Before proceeding further, make sure that you have installed cybertensor. See the below instructions:
 
-- [Install `bittensor`](https://github.com/opentensor/bittensor#install).
+- [Install `cybertensor`](https://github.com/cybercongress/cybertensor?tab=readme-ov-file#install).
 
-After installing `bittensor`, proceed as below:
+After installing `cybertensor`, proceed as below:
 
 ## Steps
 
@@ -31,16 +30,16 @@ After installing `bittensor`, proceed as below:
 In your project directory:
 
 ```bash
-git clone https://github.com/opentensor/bittensor-subnet-template.git 
+git clone https://github.com/cybercongress/cybertensor-subnet-template.git 
 ```
 
-Next, `cd` into `bittensor-subnet-template` repo directory:
+Next, `cd` into `cybertensor-subnet-template` repo directory:
 
 ```bash
-cd bittensor-subnet-template
+cd cybertensor-subnet-template
 ```
 
-Install the Bittensor subnet template package:
+Install the cybertensor subnet template package:
 
 ```bash
 python -m pip install -e . # Install your subnet template package
@@ -61,46 +60,46 @@ The validator and miner will be registered to the subnet created by the owner. T
 Create a coldkey for the owner wallet:
 
 ```bash
-btcli wallet new_coldkey --wallet.name owner
+ctcli wallet new_coldkey --wallet.name=owner --cwtensor.network=space-pussy
 ```
 
 Create a coldkey and hotkey for the subnet miner wallet:
 ```bash
-btcli wallet new_coldkey --wallet.name miner
+ctcli wallet new_coldkey --wallet.name=miner --cwtensor.network=space-pussy
 ```
 
 and
 
 ```bash
-btcli wallet new_hotkey --wallet.name miner --wallet.hotkey default
+ctcli wallet new_hotkey --wallet.name=miner --wallet.hotkey=default
 ```
 
 Create a coldkey and hotkey for the subnet validator wallet:
 
 ```bash
-btcli wallet new_coldkey --wallet.name validator
+ctcli wallet new_coldkey --wallet.name=validator --cwtensor.network=space-pussy
 ```
 
 and
 
 ```bash
-btcli wallet new_hotkey --wallet.name validator --wallet.hotkey default
+ctcli wallet new_hotkey --wallet.name=validator --wallet.hotkey=default --cwtensor.network=space-pussy
 ```
 
 ## 3. Getting the price of subnet creation
 
-Creating subnets on mainnet is competitive. The cost is determined by the rate at which new subnets are being registered onto the Bittensor blockchain. 
+Creating subnets on mainnet is competitive. The cost is determined by the rate at which new subnets are being registered onto the cybertensor. 
 
-By default you must have at least 100 TAO on your owner wallet to create a subnet. However, the exact amount will fluctuate based on demand. The below code shows how to get the current price of creating a subnet.
+By default you must have at least 100 GPUSSY on your owner wallet to create a subnet. However, the exact amount will fluctuate based on demand. The below code shows how to get the current price of creating a subnet.
 
 ```bash
-btcli subnet lock_cost 
+ctcli subnet lock_cost --cwtensor.network=space-pussy
 ```
 
 The above command will show:
 
 ```bash
->> Subnet lock cost: τ100.000000000
+>> Subnet lock cost: GPUSSY100.000000000
 ```
 
 ## 4. Purchasing a slot
@@ -110,7 +109,7 @@ Using your TAO balance, you can register your subnet to the mainchain. This will
 **NOTE**: Slots cost TAO to lock. You will get this TAO back when the subnet is deregistered.
 
 ```bash
-btcli subnet create  
+ctcli subnet create --cwtensor.network=space-pussy
 ```
 
 Enter the owner wallet name. This gives permissions to the coldkey.
@@ -132,7 +131,7 @@ This step registers your subnet validator and subnet miner keys to the subnet gi
 Register your miner key to the subnet:
 
 ```bash
-btcli subnet recycle_register --netuid 1 --subtensor.network finney --wallet.name miner --wallet.hotkey default
+ctcli subnet recycle_register --netuid=1 --wallet.name=miner --wallet.hotkey=default --cwtensor.network=space-pussy
 ```
 
 Follow the below prompts:
@@ -149,7 +148,7 @@ Follow the below prompts:
 Next, register your validator key to the subnet:
 
 ```bash
-btcli subnet recycle_register --netuid 1 --subtensor.network finney --wallet.name validator --wallet.hotkey default
+ctcli subnet recycle_register --netuid=1 --wallet.name=validator --wallet.hotkey=default --cwtensor.network=space-pussy
 ```
 
 Follow the below prompts:
@@ -159,7 +158,7 @@ Follow the below prompts:
 >> Continue Registration?
   hotkey:     ...
   coldkey:    ...
-  network:    finney [y/n]: # Select yes (y)
+  network:    space-pussy [y/n]: # Select yes (y)
 >> ✅ Registered
 ```
 
@@ -168,33 +167,33 @@ Follow the below prompts:
 Check that your subnet validator key has been registered:
 
 ```bash
-btcli wallet overview --wallet.name validator 
+ctcli wallet overview --wallet.name=validator --cwtensor.network=space-pussy
 ```
 
 The output will be similar to the below:
 
 ```bash
 Subnet: 1                                                                                                                                                                
-COLDKEY  HOTKEY   UID  ACTIVE  STAKE(τ)     RANK    TRUST  CONSENSUS  INCENTIVE  DIVIDENDS  EMISSION(ρ)   VTRUST  VPERMIT  UPDATED  AXON  HOTKEY_SS58                    
-miner    default  0      True   0.00000  0.00000  0.00000    0.00000    0.00000    0.00000            0  0.00000                14  none  5GTFrsEQfvTsh3WjiEVFeKzFTc2xcf…
-1        1        2            τ0.00000  0.00000  0.00000    0.00000    0.00000    0.00000           ρ0  0.00000                                                         
-                                                                          Wallet balance: τ0.0         
+COLDKEY  HOTKEY   UID  ACTIVE  STAKE(GPUSSY)     RANK    TRUST  CONSENSUS  INCENTIVE  DIVIDENDS  EMISSION(ρ)   VTRUST  VPERMIT  UPDATED  AXON  HOTKEY_SS58                    
+miner    default  0      True   0.00000       0.00000  0.00000    0.00000    0.00000    0.00000            0  0.00000                14  none  5GTFrsEQfvTsh3WjiEVFeKzFTc2xcf…
+1        1        2            GPUSSY0.00000  0.00000  0.00000    0.00000    0.00000    0.00000           ρ0  0.00000                                                         
+                                                                          Wallet balance: GPUSSY0.0         
 ```
 
 Check that your subnet miner has been registered:
 
 ```bash
-btcli wallet overview --wallet.name miner 
+ctcli wallet overview --wallet.name=miner --cwtensor.network=space-pussy
 ```
 
 The output will be similar to the below:
 
 ```bash
 Subnet: 1                                                                                                                                                                
-COLDKEY  HOTKEY   UID  ACTIVE  STAKE(τ)     RANK    TRUST  CONSENSUS  INCENTIVE  DIVIDENDS  EMISSION(ρ)   VTRUST  VPERMIT  UPDATED  AXON  HOTKEY_SS58                    
-miner    default  1      True   0.00000  0.00000  0.00000    0.00000    0.00000    0.00000            0  0.00000                14  none  5GTFrsEQfvTsh3WjiEVFeKzFTc2xcf…
-1        1        2            τ0.00000  0.00000  0.00000    0.00000    0.00000    0.00000           ρ0  0.00000                                                         
-                                                                          Wallet balance: τ0.0   
+COLDKEY  HOTKEY   UID  ACTIVE  STAKE(GPUSSY)     RANK    TRUST  CONSENSUS  INCENTIVE  DIVIDENDS  EMISSION(ρ)   VTRUST  VPERMIT  UPDATED  AXON  HOTKEY_SS58                    
+miner    default  1      True        0.00000  0.00000  0.00000    0.00000    0.00000    0.00000            0  0.00000                14  none  5GTFrsEQfvTsh3WjiEVFeKzFTc2xcf…
+1        1        2            GPUSSY0.00000  0.00000  0.00000    0.00000    0.00000    0.00000           ρ0  0.00000                                                         
+                                                                          Wallet balance: GPUSSY0.0   
 ```
 
 ## 7. Run subnet miner and subnet validator
@@ -202,7 +201,7 @@ miner    default  1      True   0.00000  0.00000  0.00000    0.00000    0.00000 
 Run the subnet miner:
 
 ```bash
-python neurons/miner.py --netuid 1  --wallet.name miner --wallet.hotkey default --logging.debug
+python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy
 ```
 
 You will see the below terminal output:
@@ -214,7 +213,7 @@ You will see the below terminal output:
 Run the subnet validator:
 
 ```bash
-python neurons/validator.py --netuid 1  --wallet.name validator --wallet.hotkey default --logging.debug
+python neurons/validator.py --netuid 1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy
 ```
 
 You will see the below terminal output:
@@ -225,16 +224,16 @@ You will see the below terminal output:
 
 ## 8. Get emissions flowing
 
-Register to the root subnet using the `btcli`:
+Register to the root subnet using the `ctcli`:
 
 ```bash
-btcli root register 
+ctcli root register --cwtensor.network=space-pussy
 ```
 
 Then set your weights for the subnet:
 
 ```bash
-btcli root weights 
+ctcli root weights --cwtensor.network=space-pussy
 ```
 
 ## 9. Stopping your nodes
