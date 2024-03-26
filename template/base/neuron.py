@@ -17,7 +17,6 @@
 # DEALINGS IN THE SOFTWARE.
 
 import copy
-import typing
 
 import cybertensor as ct
 
@@ -27,13 +26,16 @@ from abc import ABC, abstractmethod
 from template.utils.config import check_config, add_args, config
 from template.utils.misc import ttl_get_block
 from template import __spec_version__ as spec_version
+from template.mock import MockCwtensor, MockMetagraph
 
 
 class BaseNeuron(ABC):
     """
-    Base class for Bittensor miners. This class is abstract and should be inherited by a subclass. It contains the core logic for all neurons; validators and miners.
+    Base class for cybertensor miners. This class is abstract and should be inherited by a subclass. It contains
+    the core logic for all neurons; validators and miners.
 
-    In addition to creating a wallet, cwtensor, and metagraph, this class also handles the synchronization of the network state via a basic checkpointing mechanism based on epoch length.
+    In addition to creating a wallet, cwtensor, and metagraph, this class also handles the synchronization
+    of the network state via a basic checkpointing mechanism based on epoch length.
     """
 
     @classmethod
@@ -72,23 +74,29 @@ class BaseNeuron(ABC):
         # Log the configuration for reference.
         ct.logging.info(self.config)
 
-        # Build Bittensor objects
-        # These are core Bittensor classes to interact with the network.
-        ct.logging.info("Setting up bittensor objects.")
+        # Build cybertensor objects
+        # These are core cybertensor classes to interact with the network.
+        ct.logging.info("Setting up cybertensor objects.")
 
         # The wallet holds the cryptographic key pairs for the miner.
-        self.wallet = ct.Wallet(config=self.config)
+        if self.config.mock:
+            self.wallet = ct.MockWallet(config=self.config)
+            self.cwtensor = MockCwtensor(
+                self.config.netuid, wallet=self.wallet
+            )
+            self.metagraph = MockMetagraph(
+                self.config.netuid, cwtensor=self.cwtensor
+            )
+        else:
+            self.wallet = ct.Wallet(config=self.config)
+            self.cwtensor = ct.cwtensor(config=self.config)
+            self.metagraph = self.cwtensor.metagraph(self.config.netuid)
+
         ct.logging.info(f"Wallet: {self.wallet}")
-
-        # The cwtensor is our connection to the Cybernet network.
-        self.cwtensor = ct.cwtensor(config=self.config)
-        ct.logging.info(f"Subtensor: {self.cwtensor}")
-
-        # The metagraph holds the state of the network, letting us know about other validators and miners.
-        self.metagraph = self.cwtensor.metagraph(self.config.netuid)
+        ct.logging.info(f"Cwtensor: {self.cwtensor}")
         ct.logging.info(f"Metagraph: {self.metagraph}")
 
-        # Check if the miner is registered on the Bittensor network before proceeding further.
+        # Check if the miner is registered on the cybertensor network before proceeding further.
         self.check_registered()
 
         # Each miner gets a unique identity (UID) in the network for differentiation.
@@ -158,10 +166,12 @@ class BaseNeuron(ABC):
 
     def save_state(self):
         ct.logging.warning(
-            "save_state() not implemented for this neuron. You can implement this function to save model checkpoints or other useful data."
+            "save_state() not implemented for this neuron. You can implement this function to save model checkpoints "
+            "or other useful data."
         )
 
     def load_state(self):
         ct.logging.warning(
-            "load_state() not implemented for this neuron. You can implement this function to load model checkpoints or other useful data."
+            "load_state() not implemented for this neuron. You can implement this function to load model checkpoints "
+            "or other useful data."
         )

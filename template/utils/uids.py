@@ -5,13 +5,13 @@ from typing import List
 
 
 def check_uid_availability(
-    metagraph: "ct.metagraph.Metagraph", uid: int, vpermit_tao_limit: int
+    metagraph: "ct.metagraph.Metagraph", uid: int, vpermit_limit: int
 ) -> bool:
-    """Check if uid is available. The UID should be available if it is serving and has less than vpermit_tao_limit stake
+    """Check if uid is available. The UID should be available if it is serving and has less than vpermit_limit stake
     Args:
         metagraph (:obj: ct.metagraph.Metagraph): Metagraph object
         uid (int): uid to be checked
-        vpermit_tao_limit (int): Validator permit tao limit
+        vpermit_limit (int): Validator permit token limit
     Returns:
         bool: True if uid is available, False otherwise
     """
@@ -20,7 +20,7 @@ def check_uid_availability(
         return False
     # Filter validator permit > 1024 stake.
     if metagraph.validator_permit[uid]:
-        if metagraph.S[uid] > vpermit_tao_limit:
+        if metagraph.S[uid] > vpermit_limit:
             return False
     # Available otherwise.
     return True
@@ -43,7 +43,7 @@ def get_random_uids(
 
     for uid in range(self.metagraph.n.item()):
         uid_is_available = check_uid_availability(
-            self.metagraph, uid, self.config.neuron.vpermit_tao_limit
+            self.metagraph, uid, self.config.neuron.vpermit_limit
         )
         uid_is_not_excluded = exclude is None or uid not in exclude
 

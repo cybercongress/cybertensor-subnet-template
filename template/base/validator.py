@@ -22,6 +22,7 @@
 import copy
 import torch
 import asyncio
+import argparse
 import threading
 import cybertensor as ct
 
@@ -29,12 +30,18 @@ from typing import List
 from traceback import print_exception
 
 from template.base.neuron import BaseNeuron
+from template.mock import MockDendrite
+from template.utils.config import add_validator_args
 
 
 class BaseValidatorNeuron(BaseNeuron):
     """
-    Base class for Bittensor validators. Your validator should inherit from this class.
+    Base class for cybertensor validators. Your validator should inherit from this class.
     """
+    @classmethod
+    def add_args(cls, parser: argparse.ArgumentParser):
+        super().add_args(parser)
+        add_validator_args(cls, parser)
 
     def __init__(self, config=None):
         super().__init__(config=config)
@@ -43,12 +50,17 @@ class BaseValidatorNeuron(BaseNeuron):
         self.hotkeys = copy.deepcopy(self.metagraph.hotkeys)
 
         # Dendrite lets us send messages to other nodes (axons) in the network.
-        self.dendrite = ct.dendrite(wallet=self.wallet)
+        if self.config.mock:
+            self.dendrite = MockDendrite(wallet=self.wallet)
+        else:
+            self.dendrite = ct.dendrite(wallet=self.wallet)
         ct.logging.info(f"Dendrite: {self.dendrite}")
 
         # Set up initial scoring weights for validation
         ct.logging.info("Building validation weights.")
-        self.scores = torch.zeros_like(self.metagraph.S, dtype=torch.float32)
+        self.scores = torch.zeros(
+            self.metagraph.n, dtype=torch.float32, device=self.device
+        )
 
         # Init sync with the network. Updates the metagraph.
         self.sync()
@@ -80,6 +92,10 @@ class BaseValidatorNeuron(BaseNeuron):
                     netuid=self.config.netuid,
                     axon=self.axon,
                 )
+                ct.logging.info(
+                    f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} "
+                    f"with netuid: {self.config.netuid}"
+                )
             except Exception as e:
                 ct.logging.error(f"Failed to serve Axon with exception: {e}")
                 pass
@@ -99,18 +115,22 @@ class BaseValidatorNeuron(BaseNeuron):
 
     def run(self):
         """
-        Initiates and manages the main loop for the miner on the Bittensor network. The main loop handles graceful shutdown on keyboard interrupts and logs unforeseen errors.
+        Initiates and manages the main loop for the miner on the cybertensor network. The main loop handles graceful
+        shutdown on keyboard interrupts and logs unforeseen errors.
 
         This function performs the following primary tasks:
-        1. Check for registration on the Bittensor network.
-        2. Continuously forwards queries to the miners on the network, rewarding their responses and updating the scores accordingly.
-        3. Periodically resynchronizes with the chain; updating the metagraph with the latest network state and setting weights.
+        1. Check for registration on the cybertensor network.
+        2. Continuously forwards queries to the miners on the network, rewarding their responses and updating
+        the scores accordingly.
+        3. Periodically resynchronizes with the chain; updating the metagraph with the latest network state and setting
+        weights.
 
-        The essence of the validator's operations is in the forward function, which is called every step. The forward function is responsible for querying the network and scoring the responses.
+        The essence of the validator's operations is in the forward function, which is called every step. The forward
+        function is responsible for querying the network and scoring the responses.
 
         Note:
             - The function leverages the global configurations set during the initialization of the miner.
-            - The miner's axon serves as its interface to the Bittensor network, handling incoming and outgoing requests.
+            - The miner's axon serves as its interface to the cybertensor network, handling incoming and outgoing requests.
 
         Raises:
             KeyboardInterrupt: If the miner is stopped by a manual interruption.
@@ -119,10 +139,6 @@ class BaseValidatorNeuron(BaseNeuron):
 
         # Check that validator is registered on the network.
         self.sync()
-
-        ct.logging.info(
-            f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} with netuid: {self.config.netuid}"
-        )
 
         ct.logging.info(f"Validator starting at block: {self.block}")
 
@@ -206,13 +222,15 @@ class BaseValidatorNeuron(BaseNeuron):
 
     def set_weights(self):
         """
-        Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners. The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
+        Sets the validator weights to the metagraph hotkeys based on the scores it has received from the miners.
+        The weights determine the trust and incentive level the validator assigns to miner nodes on the network.
         """
 
         # Check if self.scores contains any NaN values and log a warning if it does.
         if torch.isnan(self.scores).any():
             ct.logging.warning(
-                f"Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your reward functions."
+                f"Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your "
+                f"reward functions."
             )
 
         # Calculate the average reward for each uid across non-zero values.
@@ -304,10 +322,16 @@ class BaseValidatorNeuron(BaseNeuron):
             # Replace any NaN values in rewards with 0.
             rewards = torch.nan_to_num(rewards, 0)
 
+        # Check if `uids` is already a tensor and clone it to avoid the warning.
+        if isinstance(uids, torch.Tensor):
+            uids_tensor = uids.clone().detach()
+        else:
+            uids_tensor = torch.tensor(uids).to(self.device)
+
         # Compute forward pass rewards, assumes uids are mutually exclusive.
         # shape: [ metagraph.n ]
         scattered_rewards: torch.FloatTensor = self.scores.scatter(
-            0, torch.tensor(uids).to(self.device), rewards
+            0, uids_tensor, rewards
         ).to(self.device)
         ct.logging.debug(f"Scattered rewards: {rewards}")
 
