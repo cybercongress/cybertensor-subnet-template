@@ -65,9 +65,12 @@ class BaseNeuron(ABC):
         self.config = self.config()
         self.config.merge(base_config)
         self.check_config(self.config)
-
+        if self.config.logging.level is None:
+            self.config.logging.level = 5 if self.config.logging.trace else 10 if self.config.logging.debug else 20
         # Set up logging with the provided configuration and directory.
-        ct.logging(config=self.config, level=0, logging_dir=self.config.full_path, trace=True, debug=True)
+        ct.logging(config=self.config,
+                   level=self.config.logging.level,
+                   logging_dir=self.config.full_path)
 
         # If a gpu is required, set the device to cuda:N (e.g. cuda:0)
         self.device = self.config.neuron.device
