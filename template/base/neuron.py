@@ -17,6 +17,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 import copy
+from typing import Optional
 
 import cybertensor as ct
 
@@ -59,14 +60,14 @@ class BaseNeuron(ABC):
     def block(self):
         return ttl_get_block(self)
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[ct.Config] = None):
         base_config = copy.deepcopy(config or BaseNeuron.config())
         self.config = self.config()
         self.config.merge(base_config)
         self.check_config(self.config)
 
         # Set up logging with the provided configuration and directory.
-        ct.logging(config=self.config, logging_dir=self.config.full_path, trace=True, debug=True)
+        ct.logging(config=self.config, level=0, logging_dir=self.config.full_path, trace=True, debug=True)
 
         # If a gpu is required, set the device to cuda:N (e.g. cuda:0)
         self.device = self.config.neuron.device

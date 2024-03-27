@@ -1,15 +1,16 @@
 import torch
 import random
-import cybertensor as ct
 from typing import List
+
+import cybertensor as ct
 
 
 def check_uid_availability(
-    metagraph: "ct.metagraph.Metagraph", uid: int, vpermit_limit: int
+    metagraph: ct.metagraph, uid: int, vpermit_limit: int
 ) -> bool:
     """Check if uid is available. The UID should be available if it is serving and has less than vpermit_limit stake
     Args:
-        metagraph (:obj: ct.metagraph.Metagraph): Metagraph object
+        metagraph (:obj: cybertensor.metagraph): Metagraph object
         uid (int): uid to be checked
         vpermit_limit (int): Validator permit token limit
     Returns:

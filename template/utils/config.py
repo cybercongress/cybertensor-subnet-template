@@ -74,7 +74,7 @@ def add_args(cls, parser):
     parser.add_argument(
         "--neuron.epoch_length",
         type=int,
-        help="The default epoch length (how often we set weights, measured in 12 second blocks).",
+        help="The default epoch length (how often we set weights, measured in ~5 second blocks).",
         default=100,
     )
 
@@ -237,7 +237,7 @@ def add_validator_args(cls, parser):
     )
 
 
-def config(cls):
+def config(cls) -> ct.Config:
     """
     Returns the configuration object specific to this miner or validator after adding relevant arguments.
     """
