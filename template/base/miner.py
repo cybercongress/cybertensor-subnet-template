@@ -21,6 +21,7 @@ import torch
 import asyncio
 import threading
 import argparse
+from typing import Optional
 
 import traceback
 
@@ -39,7 +40,7 @@ class BaseMinerNeuron(BaseNeuron):
         super().add_args(parser)
         add_miner_args(cls, parser)
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[ct.Config] = None):
         super().__init__(config=config)
 
         # Warn if allowing incoming requests from anyone.
@@ -96,7 +97,7 @@ class BaseMinerNeuron(BaseNeuron):
         """
 
         # Check that miner is registered on the network.
-        self.sync()
+        self.check_registered()
 
         # Serve passes the axon information to the network + netuid we are hosting on.
         # This will auto-update if the axon port of external ip have changed.
@@ -119,7 +120,7 @@ class BaseMinerNeuron(BaseNeuron):
                     < self.config.neuron.epoch_length
                 ):
                     # Wait before checking again.
-                    time.sleep(1)
+                    time.sleep(5)
 
                     # Check if we should exit.
                     if self.should_exit:

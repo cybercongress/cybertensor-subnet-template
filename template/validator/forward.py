@@ -20,19 +20,20 @@
 
 import cybertensor as ct
 
+from template.base.validator import BaseValidatorNeuron
 from template.protocol import Dummy
-from template.validator.reward import get_rewards
 from template.utils.uids import get_random_uids
+from template.validator.reward import get_rewards
 
 
-async def forward(self):
+async def forward(self: BaseValidatorNeuron) -> None:
     """
     The forward function is called by the validator every time step.
 
     It is responsible for querying the network and scoring the responses.
 
     Args:
-        self (:obj:`cybertensor.neuron.Neuron`): The neuron object which contains all the necessary state for the validator.
+        self (:obj:`template.base.validator.BaseValidatorNeuron`): The neuron object which contains all the necessary state for the validator.
 
     """
     # TODO(developer): Define how the validator selects a miner to query, how often, etc.
