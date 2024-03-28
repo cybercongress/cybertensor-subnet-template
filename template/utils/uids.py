@@ -55,6 +55,10 @@ def get_random_uids(
 
     # Check if candidate_uids contain enough for querying, if not grab all avaliable uids
     available_uids = candidate_uids
+    # Added by CH based on the above notes for the function
+    if k > len(available_uids):
+        k = len(available_uids)
+
     if len(candidate_uids) < k:
         available_uids += random.sample(
             [uid for uid in avail_uids if uid not in candidate_uids],
