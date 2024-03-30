@@ -264,7 +264,7 @@ class BaseValidatorNeuron(BaseNeuron):
         ct.logging.debug("uint_uids", uint_uids)
 
         # Set the weights on chain via our cwtensor connection.
-        result = self.cwtensor.set_weights(
+        result, msg = self.cwtensor.set_weights(
             wallet=self.wallet,
             netuid=self.config.netuid,
             uids=uint_uids,
@@ -273,9 +273,9 @@ class BaseValidatorNeuron(BaseNeuron):
             version_key=self.spec_version,
         )
         if result is True:
-            ct.logging.info("set_weights on chain successfully!")
+            ct.logging.debug("BaseValidatorNeuron.set_weights on chain successfully!")
         else:
-            ct.logging.error("set_weights failed")
+            ct.logging.debug(f"BaseValidatorNeuron.set_weights failed! {msg}")
 
     def resync_metagraph(self):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""

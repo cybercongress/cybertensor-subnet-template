@@ -138,7 +138,7 @@ class BaseMinerNeuron(BaseNeuron):
 
         # In case of unforeseen errors, the miner will log the error and continue operations.
         except Exception as e:
-            ct.logging.error(traceback.format_exc())
+            ct.logging.error(f'BaseMinerNeuron.run failed: {traceback.format_exc()}')
 
     def run_in_background_thread(self):
         """
@@ -204,7 +204,7 @@ class BaseMinerNeuron(BaseNeuron):
             chain_weights[self.uid] = 1
 
             # --- Set weights.
-            self.cwtensor.set_weights(
+            result, msg = self.cwtensor.set_weights(
                 wallet=self.wallet,
                 netuid=self.metagraph.netuid,
                 uids=torch.arange(0, len(chain_weights)),
@@ -212,10 +212,14 @@ class BaseMinerNeuron(BaseNeuron):
                 wait_for_finalization=False,
                 version_key=self.spec_version,
             )
+            if result is True:
+                ct.logging.debug("BaseMinerNeuron.set_weights on chain successfully!")
+            else:
+                ct.logging.debug(f"BaseMinerNeuron.set_weights failed! {msg}")
 
         except Exception as e:
             ct.logging.error(
-                f"Failed to set weights on chain with exception: { e }"
+                f"BaseMinerNeuron.set_weights failed to set weights on chain with exception: { e }"
             )
 
         ct.logging.info(f"Set weights: {chain_weights}")
