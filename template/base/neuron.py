@@ -76,7 +76,7 @@ class BaseNeuron(ABC):
         self.device = self.config.neuron.device
 
         # Log the configuration for reference.
-        ct.logging.info(self.config)
+        ct.logging.debug(f'config\t{self.config}')
 
         # Build cybertensor objects
         # These are core cybertensor classes to interact with the network.
@@ -142,7 +142,7 @@ class BaseNeuron(ABC):
         ):
             ct.logging.error(
                 f"Wallet: {self.wallet} is not registered on netuid {self.config.netuid}."
-                f" Please register the hotkey using `btcli subnets register` before trying again"
+                f" Please register the hotkey using `ctcli subnets register` before trying again"
             )
             exit()
 

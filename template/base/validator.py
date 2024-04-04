@@ -93,7 +93,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     axon=self.axon,
                 )
                 ct.logging.info(
-                    f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} "
+                    f"Running validator {self.axon} on network: {self.cwtensor.network} "
                     f"with netuid: {self.config.netuid}"
                 )
             except Exception as e:
@@ -145,7 +145,7 @@ class BaseValidatorNeuron(BaseNeuron):
         # This loop maintains the validator's operations until intentionally stopped.
         try:
             while True:
-                ct.logging.info(f"step({self.step}) block({self.block})")
+                ct.logging.info(f"Starting validator forward function at step({self.step}) block({self.block})")
 
                 # Run multiple forwards concurrently.
                 self.loop.run_until_complete(self.concurrent_forward())
@@ -216,7 +216,7 @@ class BaseValidatorNeuron(BaseNeuron):
         if self.is_running:
             ct.logging.debug("Stopping validator in background thread.")
             self.should_exit = True
-            self.thread.join(5)
+            self.thread.join(timeout=5)
             self.is_running = False
             ct.logging.debug("Stopped")
 
@@ -229,8 +229,8 @@ class BaseValidatorNeuron(BaseNeuron):
         # Check if self.scores contains any NaN values and log a warning if it does.
         if torch.isnan(self.scores).any():
             ct.logging.warning(
-                f"Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your "
-                f"reward functions."
+                "Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your "
+                "reward functions."
             )
 
         # Calculate the average reward for each uid across non-zero values.

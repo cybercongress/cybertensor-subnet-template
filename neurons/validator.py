@@ -22,7 +22,6 @@
 import time
 from typing import Optional
 
-# Bittensor
 import cybertensor as ct
 
 from template.base.validator import BaseValidatorNeuron
@@ -46,7 +45,6 @@ class Validator(BaseValidatorNeuron):
     def __init__(self, config: Optional[ct.Config] = None):
         super(Validator, self).__init__(config=config)
 
-        ct.logging.info("load_state()")
         self.load_state()
 
         # TODO(developer): Anything specific to your use case you can do here

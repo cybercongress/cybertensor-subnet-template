@@ -119,6 +119,11 @@ class BaseMinerNeuron(BaseNeuron):
                     self.block - self.metagraph.last_update[self.uid]
                     < self.config.neuron.epoch_length
                 ):
+                    ct.logging.trace(
+                        f'block {self.block}, last_update {self.metagraph.last_update[self.uid]}, '
+                        f'epoch_length {self.config.neuron.epoch_length}, '
+                        f'blocks from last update {self.block - self.metagraph.last_update[self.uid]}'
+                    )
                     # Wait before checking again.
                     time.sleep(5)
 

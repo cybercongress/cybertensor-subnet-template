@@ -32,6 +32,7 @@ def get_random_uids(
 ) -> torch.LongTensor:
     """Returns k available random uids from the metagraph.
     Args:
+        self (template.base.neuron.BaseNeuron): Neuron
         k (int): Number of uids to return.
         exclude (List[int]): List of uids to exclude from the random sampling.
     Returns:

@@ -33,7 +33,8 @@ async def forward(self: BaseValidatorNeuron) -> None:
     It is responsible for querying the network and scoring the responses.
 
     Args:
-        self (:obj:`template.base.validator.BaseValidatorNeuron`): The neuron object which contains all the necessary state for the validator.
+        self (template.base.validator.BaseValidatorNeuron): The neuron object which contains all the necessary
+            state for the validator.
 
     """
     # TODO(developer): Define how the validator selects a miner to query, how often, etc.
