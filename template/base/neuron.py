@@ -39,6 +39,8 @@ class BaseNeuron(ABC):
     of the network state via a basic checkpointing mechanism based on epoch length.
     """
 
+    neuron_type: str = "BaseNeuron"
+
     @classmethod
     def check_config(cls, config: "ct.Config"):
         check_config(cls, config)
@@ -165,8 +167,10 @@ class BaseNeuron(ABC):
 
         # Define appropriate logic for when set weights.
         return (
-            self.block - self.metagraph.last_update[self.uid]
-        ) > self.config.neuron.epoch_length
+            (self.block - self.metagraph.last_update[self.uid])
+            > self.config.neuron.epoch_length
+            and self.neuron_type != "MinerNeuron"
+        )  # don't set weights if you're a miner
 
     def save_state(self):
         ct.logging.warning(

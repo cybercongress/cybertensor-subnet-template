@@ -32,11 +32,5 @@ __spec_version__ = (
 from . import protocol
 from . import base
 from . import validator
-
-
-# import json
-
-# SUBNET_LINKS = None
-# with open("subnet_links.json") as f:
-#     links_dict = json.load(f)
-#     SUBNET_LINKS = links_dict.get("subnet_repositories", None)
+from . import api
+from .subnet_links import SUBNET_LINKS

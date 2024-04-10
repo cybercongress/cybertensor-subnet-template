@@ -92,7 +92,7 @@ class Miner(BaseMinerNeuron):
         - Reject if the hotkey is not a registered entity within the metagraph.
         - Consider blacklisting entities that are not validators or have insufficient stake.
 
-        In practice it would be wise to blacklist requests from entities that are not validators, or do not have
+        In practice, it would be wise to blacklist requests from entities that are not validators, or do not have
         enough stake. This can be checked via metagraph.S and metagraph.validator_permit. You can always attain
         the uid of the sender via a metagraph.hotkeys.index( synapse.dendrite.hotkey ) call.
 

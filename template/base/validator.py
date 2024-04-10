@@ -38,6 +38,9 @@ class BaseValidatorNeuron(BaseNeuron):
     """
     Base class for cybertensor validators. Your validator should inherit from this class.
     """
+
+    neuron_type: str = "ValidatorNeuron"
+
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser):
         super().add_args(parser)
@@ -346,6 +349,7 @@ class BaseValidatorNeuron(BaseNeuron):
     def save_state(self):
         """Saves the state of the validator to a file."""
         ct.logging.info("Saving validator state.")
+        ct.logging.debug(f"Saving validator state in the {self.config.neuron.full_path + '/state.pt'}.")
 
         # Save the state of the validator to file.
         torch.save(
@@ -360,6 +364,7 @@ class BaseValidatorNeuron(BaseNeuron):
     def load_state(self):
         """Loads the state of the validator from a file."""
         ct.logging.info("Loading validator state.")
+        ct.logging.debug(f"Loading validator state from the {self.config.neuron.full_path + '/state.pt'}.")
 
         # Load the state of the validator from file.
         state = torch.load(self.config.neuron.full_path + "/state.pt")

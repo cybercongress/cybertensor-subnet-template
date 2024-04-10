@@ -210,9 +210,6 @@ class StreamMiner(ABC):
                 )
                 ct.logging.info(log)
 
-                # --- Set weights.
-                if not self.config.miner.no_set_weights:
-                    pass
                 step += 1
 
         # If someone intentionally stops the miner, it'll safely terminate operations.
