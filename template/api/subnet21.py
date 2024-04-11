@@ -18,10 +18,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import torch
 import base64
 import cybertensor as ct
-from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Union
 from cybertensor.subnets import SubnetsAPI
 
@@ -31,10 +29,11 @@ try:
         encrypt_data,
         decrypt_data_with_private_key,
     )
-except:
+except Exception as e:
     storage_url = "https://github.com/ifrit98/storage-subnet"
     ct.logging.error(
-        f"Storage Subnet 21 not installed. Please visit: {storage_url} and install the package to use this example."
+        f"Storage Subnet 21 not installed. Please visit: {storage_url} and install the package to use this example. "
+        f"Error: {e}"
     )
 
 

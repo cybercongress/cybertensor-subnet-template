@@ -19,7 +19,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 import cybertensor as ct
-from typing import List, Optional, Union, Any, Dict
+from typing import List, Union, Any
 from template.protocol import Dummy
 from cybertensor.subnets import SubnetsAPI
 

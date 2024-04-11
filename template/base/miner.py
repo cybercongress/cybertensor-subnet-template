@@ -17,7 +17,6 @@
 # DEALINGS IN THE SOFTWARE.
 
 import time
-import torch
 import asyncio
 import threading
 import argparse
@@ -60,7 +59,7 @@ class BaseMinerNeuron(BaseNeuron):
         self.axon = ct.axon(wallet=self.wallet, config=self.config)
 
         # Attach determiners which functions are called when servicing a request.
-        ct.logging.info(f"Attaching forward function to miner axon.")
+        ct.logging.info("Attaching forward function to miner axon.")
         self.axon.attach(
             forward_fn=self.forward,
             blacklist_fn=self.blacklist,
@@ -146,7 +145,7 @@ class BaseMinerNeuron(BaseNeuron):
 
         # In case of unforeseen errors, the miner will log the error and continue operations.
         except Exception as e:
-            ct.logging.error(f'BaseMinerNeuron.run failed: {traceback.format_exc()}')
+            ct.logging.error(f'BaseMinerNeuron.run failed: {e} {traceback.format_exc()}')
 
     def run_in_background_thread(self):
         """
