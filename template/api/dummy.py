@@ -18,20 +18,24 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import cybertensor as ct
+
 from typing import List, Union, Any
-from template.protocol import Dummy
+
+import cybertensor as ct
 from cybertensor.subnets import SubnetsAPI
+
+from template.protocol import Dummy
 
 
 class DummyAPI(SubnetsAPI):
-    def __init__(self, wallet: "ct.Wallet"):
+
+    def __init__(self, wallet: "ct.Wallet", netuid: int = 1):
         super().__init__(wallet)
-        self.netuid = 33
+        self.netuid = netuid
         self.name = "dummy"
 
     def prepare_synapse(self, dummy_input: int) -> Dummy:
-        synapse.dummy_input = dummy_input
+        synapse = Dummy(dummy_input=dummy_input)
         return synapse
 
     def process_responses(
@@ -41,5 +45,5 @@ class DummyAPI(SubnetsAPI):
         for response in responses:
             if response.dendrite.status_code != 200:
                 continue
-            return outputs.append(response.dummy_output)
+            outputs.append(response.dummy_output)
         return outputs

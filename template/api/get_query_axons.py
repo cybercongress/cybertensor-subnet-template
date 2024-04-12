@@ -20,14 +20,14 @@
 
 import torch
 import random
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Iterable
 import cybertensor as ct
 
 
 async def ping_uids(
         dendrite: ct.dendrite,
         metagraph: ct.metagraph,
-        uids: List[int],
+        uids: Iterable[int],
         timeout: Optional[int] = 3
 ) -> [List[int], List[int]]:
     """
@@ -35,7 +35,7 @@ async def ping_uids(
     Args:
         dendrite (cybertensor.dendrite): The dendrite instance to use for pinging nodes.
         metagraph (cybertensor.metagraph): The metagraph instance containing network information.
-        uids (list): A list of UIDs (unique identifiers) to ping.
+        uids (list[int]): A list of UIDs (unique identifiers) to ping.
         timeout (int, optional): The timeout in seconds for each ping. Defaults to 3.
     Returns:
         tuple: A tuple containing two lists:
@@ -78,7 +78,7 @@ async def get_query_api_nodes(
     """
     Fetches the available API nodes to query for the particular subnet.
     Args:
-        wallet (cybertensor.Wallet): The wallet instance to use for querying nodes.
+        dendrite (cybertensor.dendrite): the dendrite
         metagraph (cybertensor.metagraph): The metagraph instance containing network information.
         n (float, optional): The fraction of top nodes to consider based on stake. Defaults to 0.1.
         timeout (int, optional): The timeout in seconds for pinging nodes. Defaults to 3.
@@ -97,7 +97,7 @@ async def get_query_api_nodes(
     top_uids = top_uids[0].tolist()
     init_query_uids = set(top_uids).intersection(set(vtrust_uids))
     query_uids, _ = await ping_uids(
-        dendrite, metagraph, init_query_uids, timeout=timeout
+        dendrite=dendrite, metagraph=metagraph, uids=init_query_uids, timeout=timeout
     )
     ct.logging.debug(
         f"Available API node UIDs for subnet {metagraph.netuid}: {query_uids}"
@@ -110,6 +110,7 @@ async def get_query_api_nodes(
 async def get_query_api_axons(
         wallet: ct.Wallet,
         metagraph: Optional[ct.metagraph] = None,
+        netuid: int = 1,
         n: float = 0.1,
         timeout: int = 3,
         uids: Optional[Union[List[int], int]] = None
@@ -119,6 +120,7 @@ async def get_query_api_axons(
     Args:
         wallet (cybertensor.Wallet): The wallet instance to use for querying nodes.
         metagraph (cybertensor.metagraph, optional): The metagraph instance containing network information.
+        netuid (int, optional): The network ID to get the nodes APIs. Defaults to 1.
         n (float, optional): The fraction of top nodes to consider based on stake. Defaults to 0.1.
         timeout (int, optional): The timeout in seconds for pinging nodes. Defaults to 3.
         uids (Union[List[int], int], optional): The specific UID(s) of the API node(s) to query. Defaults to None.
@@ -128,7 +130,7 @@ async def get_query_api_axons(
     dendrite = ct.dendrite(wallet=wallet)
 
     if metagraph is None:
-        metagraph = ct.metagraph(netuid=21)
+        metagraph = ct.metagraph(netuid=netuid, network="space-pussy")
 
     if uids is not None:
         query_uids = [uids] if isinstance(uids, int) else uids

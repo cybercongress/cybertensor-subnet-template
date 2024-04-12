@@ -142,6 +142,11 @@ __Note__
 The `template` directory should also be renamed to your project name.
 ---
 
+# Writing your own subnet API
+[Docs](docs/writing_api.md)  
+[Dummy example](template/api/dummy.py)  
+[Storage subnet example](template/api/subnet21.py)  
+
 # Subnet Links
 
 In order to see real-world examples of subnets in-action, see the `subnet_links.py` document or access them from inside 

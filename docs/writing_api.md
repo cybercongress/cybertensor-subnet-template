@@ -43,37 +43,51 @@ class SubnetsAPI(ABC):
 ```
 
 
-Here is a toy example:
-
+Here define and usage of the `Dummy` interface is a toy example:
 ```python
+import cybertensor as ct
 from cybertensor.subnets import SubnetsAPI
-from MySubnet import MySynapse
+from template.protocol import Dummy
 
-class MySynapseAPI(SubnetsAPI):
-    def __init__(self, wallet: "ct.Wallet"):
+
+class DummyAPI(SubnetsAPI):
+    
+    def __init__(self, wallet: "ct.Wallet", netuid: int = 1):
         super().__init__(wallet)
-        self.netuid = 99
+        self.netuid = netuid
+        self.name = "dummy"
 
-    def prepare_synapse(self, prompt: str) -> MySynapse:
-        # Do any preparatory work to fill the synapse
-        data = do_prompt_injection(prompt)
-
-        # Fill the synapse for transit
-        synapse = StoreUser(
-            messages=[data],
-        )
-        # Send it along
+    def prepare_synapse(self, dummy_input: int) -> Dummy:
+        synapse = Dummy(dummy_input=dummy_input)
         return synapse
 
-    def process_responses(self, responses: List[Union["ct.Synapse", Any]]) -> str:
-        # Look through the responses for information required by your application
+    def process_responses(
+        self, responses: List[Union["ct.Synapse", Any]]
+    ) -> List[int]:
+        outputs = []
         for response in responses:
             if response.dendrite.status_code != 200:
                 continue
-            # potentially apply post processing
-            result_data = postprocess_data_from_response(response)
-        # return data to the client
-        return result_data
+            outputs.append(response.dummy_output)
+        return outputs
+```
+```python
+from cybertensor import Wallet
+from template.api.dummy import DummyAPI
+from template.api.get_query_axons import get_query_api_axons
+
+wallet = Wallet()
+query_axons = await get_query_api_axons(
+    wallet=wallet,
+    netuid=7,
+    n=1, 
+    timeout=10
+)
+dummy_api = DummyAPI(wallet=wallet)
+await dummy_api(
+    axons=query_axons, # the axons you wish to query
+    dummy_input=1
+)
 ```
 
 You can use a subnet API to the registry by doing the following:
