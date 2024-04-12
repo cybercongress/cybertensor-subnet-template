@@ -70,7 +70,6 @@ class MockDendrite(ct.dendrite):
             run_async: bool = True,
             streaming: bool = False,
     ):
-
         if streaming:
             raise NotImplementedError("Streaming not implemented yet.")
 
@@ -107,7 +106,10 @@ class MockDendrite(ct.dendrite):
                     return s
 
             return await asyncio.gather(
-                *(single_axon_response(i, target_axon) for i, target_axon in enumerate(axons))
+                *(
+                    single_axon_response(i, target_axon)
+                    for i, target_axon in enumerate(axons)
+                )
             )
 
         return await query_all_axons(streaming)

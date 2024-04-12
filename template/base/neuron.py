@@ -17,6 +17,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 import copy
+from typing import Optional
 
 import cybertensor as ct
 
@@ -37,6 +38,8 @@ class BaseNeuron(ABC):
     In addition to creating a wallet, cwtensor, and metagraph, this class also handles the synchronization
     of the network state via a basic checkpointing mechanism based on epoch length.
     """
+
+    neuron_type: str = "BaseNeuron"
 
     @classmethod
     def check_config(cls, config: "ct.Config"):
@@ -59,20 +62,23 @@ class BaseNeuron(ABC):
     def block(self):
         return ttl_get_block(self)
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[ct.Config] = None):
         base_config = copy.deepcopy(config or BaseNeuron.config())
         self.config = self.config()
         self.config.merge(base_config)
         self.check_config(self.config)
-
+        if self.config.logging.level is None:
+            self.config.logging.level = 5 if self.config.logging.trace else 10 if self.config.logging.debug else 20
         # Set up logging with the provided configuration and directory.
-        ct.logging(config=self.config, logging_dir=self.config.full_path, trace=True, debug=True)
+        ct.logging(config=self.config,
+                   level=self.config.logging.level,
+                   logging_dir=self.config.full_path)
 
         # If a gpu is required, set the device to cuda:N (e.g. cuda:0)
         self.device = self.config.neuron.device
 
         # Log the configuration for reference.
-        ct.logging.info(self.config)
+        ct.logging.debug(f'config\t{self.config}')
 
         # Build cybertensor objects
         # These are core cybertensor classes to interact with the network.
@@ -138,7 +144,7 @@ class BaseNeuron(ABC):
         ):
             ct.logging.error(
                 f"Wallet: {self.wallet} is not registered on netuid {self.config.netuid}."
-                f" Please register the hotkey using `btcli subnets register` before trying again"
+                f" Please register the hotkey using `ctcli subnets register` before trying again"
             )
             exit()
 
@@ -161,8 +167,10 @@ class BaseNeuron(ABC):
 
         # Define appropriate logic for when set weights.
         return (
-            self.block - self.metagraph.last_update[self.uid]
-        ) > self.config.neuron.epoch_length
+            (self.block - self.metagraph.last_update[self.uid])
+            > self.config.neuron.epoch_length
+            and self.neuron_type != "MinerNeuron"
+        )  # don't set weights if you're a miner
 
     def save_state(self):
         ct.logging.warning(

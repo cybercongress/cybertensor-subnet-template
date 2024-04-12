@@ -48,7 +48,8 @@ class StreamMiner(ABC):
 
         if self.wallet.hotkey.address not in self.metagraph.hotkeys:
             ct.logging.error(
-                f"\nYour validator: {self.wallet} if not registered to chain connection: {self.cwtensor} \nRun btcli register and try again. "
+                f"\nYour validator: {self.wallet} if not registered to chain connection: {self.cwtensor} \n"
+                f"Run ctcli register and try again. "
             )
             exit()
         else:
@@ -147,7 +148,7 @@ class StreamMiner(ABC):
         ):
             ct.logging.error(
                 f"Wallet: {self.wallet} is not registered on netuid {self.config.netuid}"
-                f"Please register the hotkey using `btcli subnets register` before trying again"
+                f"Please register the hotkey using `ctcli subnets register` before trying again"
             )
             exit()
 
@@ -209,9 +210,6 @@ class StreamMiner(ABC):
                 )
                 ct.logging.info(log)
 
-                # --- Set weights.
-                if not self.config.miner.no_set_weights:
-                    pass
                 step += 1
 
         # If someone intentionally stops the miner, it'll safely terminate operations.

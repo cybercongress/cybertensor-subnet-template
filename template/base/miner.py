@@ -21,6 +21,7 @@ import torch
 import asyncio
 import threading
 import argparse
+from typing import Optional
 
 import traceback
 
@@ -34,12 +35,15 @@ class BaseMinerNeuron(BaseNeuron):
     """
     Base class for cybertensor miners.
     """
+
+    neuron_type: str = "MinerNeuron"
+
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser):
         super().add_args(parser)
         add_miner_args(cls, parser)
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[ct.Config] = None):
         super().__init__(config=config)
 
         # Warn if allowing incoming requests from anyone.
@@ -96,7 +100,7 @@ class BaseMinerNeuron(BaseNeuron):
         """
 
         # Check that miner is registered on the network.
-        self.sync()
+        self.check_registered()
 
         # Serve passes the axon information to the network + netuid we are hosting on.
         # This will auto-update if the axon port of external ip have changed.
@@ -118,8 +122,13 @@ class BaseMinerNeuron(BaseNeuron):
                     self.block - self.metagraph.last_update[self.uid]
                     < self.config.neuron.epoch_length
                 ):
+                    ct.logging.trace(
+                        f'block {self.block}, last_update {self.metagraph.last_update[self.uid]}, '
+                        f'epoch_length {self.config.neuron.epoch_length}, '
+                        f'blocks from last update {self.block - self.metagraph.last_update[self.uid]}'
+                    )
                     # Wait before checking again.
-                    time.sleep(1)
+                    time.sleep(5)
 
                     # Check if we should exit.
                     if self.should_exit:
@@ -137,7 +146,7 @@ class BaseMinerNeuron(BaseNeuron):
 
         # In case of unforeseen errors, the miner will log the error and continue operations.
         except Exception as e:
-            ct.logging.error(traceback.format_exc())
+            ct.logging.error(f'BaseMinerNeuron.run failed: {traceback.format_exc()}')
 
     def run_in_background_thread(self):
         """
@@ -185,39 +194,6 @@ class BaseMinerNeuron(BaseNeuron):
                        None if the context was exited without an exception.
         """
         self.stop_run_thread()
-
-    def set_weights(self):
-        """
-        Self-assigns a weight of 1 to the current miner (identified by its UID) and
-        a weight of 0 to all other peers in the network. The weights determine the trust level the miner assigns
-        to other nodes on the network.
-
-        Raises:
-            Exception: If there's an error while setting weights, the exception is logged for diagnosis.
-        """
-        try:
-            # --- query the chain for the most current number of peers on the network
-            chain_weights = torch.zeros(
-                self.cwtensor.subnetwork_n(netuid=self.metagraph.netuid)
-            )
-            chain_weights[self.uid] = 1
-
-            # --- Set weights.
-            self.cwtensor.set_weights(
-                wallet=self.wallet,
-                netuid=self.metagraph.netuid,
-                uids=torch.arange(0, len(chain_weights)),
-                weights=chain_weights.to("cpu"),
-                wait_for_finalization=False,
-                version_key=self.spec_version,
-            )
-
-        except Exception as e:
-            ct.logging.error(
-                f"Failed to set weights on chain with exception: { e }"
-            )
-
-        ct.logging.info(f"Set weights: {chain_weights}")
 
     def resync_metagraph(self):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""

@@ -144,18 +144,15 @@ The `template` directory should also be renamed to your project name.
 
 # Subnet Links
 
-In order to see real-world examples of subnets in-action, see the `subnet_links.json` document or access them from
-inside the `template` package by:
-
+In order to see real-world examples of subnets in-action, see the `subnet_links.py` document or access them from inside 
+the `template` package by:
 ```python
 import template
-
 template.SUBNET_LINKS
-[{'name': 'sn0', 'url': ''},
- {'name': 'sn1', 'url': 'https://github.com/opentensor/text-prompting/'},
- {'name': 'sn2', 'url': 'https://github.com/bittranslateio/bittranslate/'},
- {'name': 'sn3', 'url': 'https://github.com/gitphantomman/scraping_subnet/'},
- {'name': 'sn4', 'url': 'https://github.com/manifold-inc/targon/'},
+[{'name': '1', 'url': ''},
+ {'name': '2', 'url': ''},
+ {'name': '3', 'url': ''},
+ {'name': '4', 'url': ''},
  ...
  ]
 ```

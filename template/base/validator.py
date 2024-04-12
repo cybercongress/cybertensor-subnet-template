@@ -38,6 +38,9 @@ class BaseValidatorNeuron(BaseNeuron):
     """
     Base class for cybertensor validators. Your validator should inherit from this class.
     """
+
+    neuron_type: str = "ValidatorNeuron"
+
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser):
         super().add_args(parser)
@@ -93,7 +96,7 @@ class BaseValidatorNeuron(BaseNeuron):
                     axon=self.axon,
                 )
                 ct.logging.info(
-                    f"Running validator {self.axon} on network: {self.config.cwtensor.chain_endpoint} "
+                    f"Running validator {self.axon} on network: {self.cwtensor.network} "
                     f"with netuid: {self.config.netuid}"
                 )
             except Exception as e:
@@ -145,7 +148,7 @@ class BaseValidatorNeuron(BaseNeuron):
         # This loop maintains the validator's operations until intentionally stopped.
         try:
             while True:
-                ct.logging.info(f"step({self.step}) block({self.block})")
+                ct.logging.info(f"Starting validator forward function at step({self.step}) block({self.block})")
 
                 # Run multiple forwards concurrently.
                 self.loop.run_until_complete(self.concurrent_forward())
@@ -216,7 +219,7 @@ class BaseValidatorNeuron(BaseNeuron):
         if self.is_running:
             ct.logging.debug("Stopping validator in background thread.")
             self.should_exit = True
-            self.thread.join(5)
+            self.thread.join(timeout=5)
             self.is_running = False
             ct.logging.debug("Stopped")
 
@@ -229,8 +232,8 @@ class BaseValidatorNeuron(BaseNeuron):
         # Check if self.scores contains any NaN values and log a warning if it does.
         if torch.isnan(self.scores).any():
             ct.logging.warning(
-                f"Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your "
-                f"reward functions."
+                "Scores contain NaN values. This may be due to a lack of responses from miners, or a bug in your "
+                "reward functions."
             )
 
         # Calculate the average reward for each uid across non-zero values.
@@ -264,7 +267,7 @@ class BaseValidatorNeuron(BaseNeuron):
         ct.logging.debug("uint_uids", uint_uids)
 
         # Set the weights on chain via our cwtensor connection.
-        result = self.cwtensor.set_weights(
+        result, msg = self.cwtensor.set_weights(
             wallet=self.wallet,
             netuid=self.config.netuid,
             uids=uint_uids,
@@ -273,9 +276,9 @@ class BaseValidatorNeuron(BaseNeuron):
             version_key=self.spec_version,
         )
         if result is True:
-            ct.logging.info("set_weights on chain successfully!")
+            ct.logging.debug("BaseValidatorNeuron.set_weights on chain successfully!")
         else:
-            ct.logging.error("set_weights failed")
+            ct.logging.debug(f"BaseValidatorNeuron.set_weights failed! {msg}")
 
     def resync_metagraph(self):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""
@@ -346,6 +349,7 @@ class BaseValidatorNeuron(BaseNeuron):
     def save_state(self):
         """Saves the state of the validator to a file."""
         ct.logging.info("Saving validator state.")
+        ct.logging.debug(f"Saving validator state in the {self.config.neuron.full_path + '/state.pt'}.")
 
         # Save the state of the validator to file.
         torch.save(
@@ -360,6 +364,7 @@ class BaseValidatorNeuron(BaseNeuron):
     def load_state(self):
         """Loads the state of the validator from a file."""
         ct.logging.info("Loading validator state.")
+        ct.logging.debug(f"Loading validator state from the {self.config.neuron.full_path + '/state.pt'}.")
 
         # Load the state of the validator from file.
         state = torch.load(self.config.neuron.full_path + "/state.pt")

@@ -1,15 +1,16 @@
 import torch
 import random
-import cybertensor as ct
 from typing import List
+
+import cybertensor as ct
 
 
 def check_uid_availability(
-    metagraph: "ct.metagraph.Metagraph", uid: int, vpermit_limit: int
+    metagraph: ct.metagraph, uid: int, vpermit_limit: int
 ) -> bool:
     """Check if uid is available. The UID should be available if it is serving and has less than vpermit_limit stake
     Args:
-        metagraph (:obj: ct.metagraph.Metagraph): Metagraph object
+        metagraph (:obj: cybertensor.metagraph): Metagraph object
         uid (int): uid to be checked
         vpermit_limit (int): Validator permit token limit
     Returns:
@@ -31,6 +32,7 @@ def get_random_uids(
 ) -> torch.LongTensor:
     """Returns k available random uids from the metagraph.
     Args:
+        self (template.base.neuron.BaseNeuron): Neuron
         k (int): Number of uids to return.
         exclude (List[int]): List of uids to exclude from the random sampling.
     Returns:
@@ -54,6 +56,9 @@ def get_random_uids(
 
     # Check if candidate_uids contain enough for querying, if not grab all avaliable uids
     available_uids = candidate_uids
+    # If k is larger than the number of available uids, set k to the number of available uids.
+    k = min(k, len(available_uids))
+
     if len(candidate_uids) < k:
         available_uids += random.sample(
             [uid for uid in avail_uids if uid not in candidate_uids],
