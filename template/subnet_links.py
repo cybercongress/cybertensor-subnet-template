@@ -1,9 +1,9 @@
 SUBNET_LINKS = [
-    {"name": "1", "url": ""},
-    {"name": "2", "url": ""},
-    {"name": "3", "url": ""},
-    {"name": "4", "url": ""},
-    {"name": "5", "url": ""},
-    {"name": "6", "url": ""},
-    {"name": "7", "url": ""}
+    {"netid": 1, "name": "Avalability Subnet", "url": "https://github.com/cybercongress/cybertensor-subnet-template"},
+    {"netid": 2, "name": "2", "url": ""},
+    {"netid": 3, "name": "3", "url": ""},
+    {"netid": 4, "name": "4", "url": ""},
+    {"netid": 5, "name": "5", "url": ""},
+    {"netid": 6, "name": "6", "url": ""},
+    {"netid": 7, "name": "7", "url": ""}
 ]

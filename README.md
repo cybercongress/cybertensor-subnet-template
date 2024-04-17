@@ -104,10 +104,11 @@ Before you proceed with the installation of the subnet, note the following:
 
 ### Install
 
-- **Running locally**: Follow the step-by-step instructions described in this
-  section: [Running Subnet Locally](./docs/running_on_staging.md).
-- **Running on space-pussy mainnet**: Follow the step-by-step instructions described in this
-  section: [Running on the Main Network](./docs/running_on_mainnet.md).
+[//]: # (- **Running locally**: Follow the step-by-step instructions described in this)
+
+[//]: # (  section: [Running Subnet Locally]&#40;./docs/running_on_staging.md&#41;.)
+- **Running Availability Subnet on space-pussy network**: Follow the step-by-step instructions described in this
+  section: [Running Availability Subnet](./docs/running_availability_subnet.md).
 
 ---
 
@@ -154,10 +155,12 @@ the `template` package by:
 ```python
 import template
 template.SUBNET_LINKS
-[{'name': '1', 'url': ''},
- {'name': '2', 'url': ''},
- {'name': '3', 'url': ''},
- {'name': '4', 'url': ''},
+```
+```python
+[{"netid": 1, "name": "Avalability Subnet", "url": "https://github.com/cybercongress/cybertensor-subnet-template"},
+ {"netid": 2, "name": "2", "url": ""},
+ {"netid": 3, "name": "3", "url": ""},
+ {"netid": 4, "name": "4", "url": ""},
  ...
  ]
 ```
