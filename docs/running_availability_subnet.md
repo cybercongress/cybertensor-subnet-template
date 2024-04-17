@@ -84,12 +84,15 @@ ctcli subnet register --netuid=1 --wallet.name=miner --wallet.hotkey=default --c
 Follow the below prompts:
 
 ```bash
->> Enter netuid [1] (1): # Enter netuid 1 to specify the subnet you just created.
->> Continue Registration?
-  hotkey:     ...
-  coldkey:    ...
-  network:    space-pussy [y/n]: # Select yes (y)
->> ✅ Registered
+Your balance is: GPUSSY0.200000000
+The cost to register by recycle is GPUSSY0.100000000
+Do you want to continue? [y/n] (n): y
+Recycle GPUSSY0.100000000 to register on subnet:1? [y/n]: y
+Gas used: 304635
+📡 Checking Balance...
+Balance:
+  GPUSSY0.200000000 ➡ GPUSSY0.100000000
+✅ Registered
 ```
 
 Next, register your validator key to the subnet:
@@ -101,12 +104,15 @@ ctcli subnet register --netuid=1 --wallet.name=validator --wallet.hotkey=default
 Follow the below prompts:
 
 ```bash
->> Enter netuid [1] (1): # Enter netuid 1 to specify the subnet you just created.
->> Continue Registration?
-  hotkey:     ...
-  coldkey:    ...
-  network:    space-pussy [y/n]: # Select yes (y)
->> ✅ Registered
+Your balance is: GPUSSY0.200000000
+The cost to register by recycle is GPUSSY0.100000000
+Do you want to continue? [y/n] (n): y
+Recycle GPUSSY0.100000000 to register on subnet:1? [y/n]: y
+Gas used: 305564
+📡 Checking Balance...
+Balance:
+  GPUSSY0.200000000 ➡ GPUSSY0.100000000
+✅ Registered
 ```
 
 ## 5. Check that your keys have been registered
@@ -162,7 +168,7 @@ Successfully became a delegate on space-pussy
 Run the subnet miner:
 
 ```bash
-python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy
+python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.pot=9000
 ```
 
 You will see the below terminal output:
@@ -174,7 +180,7 @@ You will see the below terminal output:
 Run the subnet validator:
 
 ```bash
-python neurons/validator.py --netuid 1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy
+python neurons/validator.py --netuid 1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.pot=10000
 ```
 
 You will see the below terminal output:
