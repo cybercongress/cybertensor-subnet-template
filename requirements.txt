@@ -1,2 +1,2 @@
-cybertensor>=0.2.0
+cybertensor>=0.2.1
 torch
