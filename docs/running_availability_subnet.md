@@ -71,7 +71,7 @@ ctcli wallet list
 Transfer at least 0.3 GPUSSY to your miner and validator coldkey wallets to register in the subnet and to stake.
 Transfer any GPUSSY amount to your miner and validator hotkey wallets to include addresses to blockchain.
 
-## 4. Register keys and Stake
+## 4. Register keys
 
 This step registers your subnet validator and subnet miner keys to the subnet giving them the **first two slots** on the subnet.
 
@@ -190,7 +190,7 @@ Stake:
 Run the subnet miner:
 
 ```bash
-python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.pot=9000
+python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.port=9000
 ```
 
 You will see the below terminal output:
@@ -202,7 +202,7 @@ You will see the below terminal output:
 Run the subnet validator:
 
 ```bash
-python neurons/validator.py --netuid 1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.pot=10000
+python neurons/validator.py --netuid=1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.port=10000
 ```
 
 You will see the below terminal output:
