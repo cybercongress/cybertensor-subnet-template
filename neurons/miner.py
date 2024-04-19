@@ -44,7 +44,7 @@ class Miner(BaseMinerNeuron):
 
     def save_state(self):
         # TODO(developer): State saving you can do here
-        ct.logging.warning('Miner.save_state function is not implemented')
+        ct.logging.trace('Miner.save_state function is not implemented')
 
     async def forward(
             self, synapse: Dummy

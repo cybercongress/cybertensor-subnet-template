@@ -68,10 +68,10 @@ Get list of your wallet addresses:
 ```bash
 ctcli wallet list
 ```
-Transfer at list 0.1 GPUSSY to your miner and validator coldkey wallets to register in the subnet.
-Transfer at any GPUSSY amount to your miner and validator hotkey wallets to include addresses to blockchain.
+Transfer at least 0.3 GPUSSY to your miner and validator coldkey wallets to register in the subnet and to stake.
+Transfer any GPUSSY amount to your miner and validator hotkey wallets to include addresses to blockchain.
 
-## 4. (Optional) Register keys 
+## 4. Register keys
 
 This step registers your subnet validator and subnet miner keys to the subnet giving them the **first two slots** on the subnet.
 
@@ -149,7 +149,7 @@ miner    default    9    True        0.00000  0.00000  0.00000    0.00000    0.0
                                                                           Wallet balance: GPUSSY0.1
 ```
 
-## 7. Get emissions flowing
+## 6. Get emissions flowing
 
 Nominate your validator to the root subnet using the `ctcli`:
 ```bash
@@ -162,13 +162,35 @@ The output will be similar to the below:
 Successfully became a delegate on space-pussy
 ```
 
+## 7. Stake to your validator
+Selfstake to your validator:
+```bash
+ctcli stake add --wallet.name=validator --wallet.hotkey=default --cwtensor.network=space-pussy
+```
+Follow the below prompts:
+
+```bash
+Enter GPUSSY amount to stake: 0.1
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.94it/s]
+Do you want to stake to the following keys from validator:
+    - default:pussy1...: 0.1 GPUSSY
+ [y/n]: y
+Do you want to stake:
+  amount: GPUSSY0.099000000
+  to: default [y/n]: y
+✅ Finalized
+Balance:
+  GPUSSY0.8... ➡ GPUSSY0.7...
+Stake:
+  GPUSSY0.0... ➡ GPUSSY0.09...
+```
 
 ## 8. Run subnet miner and subnet validator
 
 Run the subnet miner:
 
 ```bash
-python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.pot=9000
+python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.port=9000
 ```
 
 You will see the below terminal output:
@@ -180,7 +202,7 @@ You will see the below terminal output:
 Run the subnet validator:
 
 ```bash
-python neurons/validator.py --netuid 1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.pot=10000
+python neurons/validator.py --netuid=1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.port=10000
 ```
 
 You will see the below terminal output:
