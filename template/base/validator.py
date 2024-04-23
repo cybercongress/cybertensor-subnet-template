@@ -20,6 +20,8 @@
 
 
 import copy
+import time
+
 import torch
 import asyncio
 import argparse
@@ -48,6 +50,7 @@ class BaseValidatorNeuron(BaseNeuron):
 
     def __init__(self, config=None):
         super().__init__(config=config)
+        self.load_state()
 
         # Save a copy of the hotkeys to local memory.
         self.hotkeys = copy.deepcopy(self.metagraph.hotkeys)
@@ -148,19 +151,21 @@ class BaseValidatorNeuron(BaseNeuron):
         # This loop maintains the validator's operations until intentionally stopped.
         try:
             while True:
-                ct.logging.info(f"Starting validator forward function at step({self.step}) block({self.block})")
+                if self.should_sync_metagraph():
+                    ct.logging.info(f"Starting validator forward function at step {self.step}\tblock {self.block:>,}")
 
-                # Run multiple forwards concurrently.
-                self.loop.run_until_complete(self.concurrent_forward())
+                    # Run multiple forwards concurrently.
+                    self.loop.run_until_complete(self.concurrent_forward())
 
-                # Check if we should exit.
-                if self.should_exit:
-                    break
+                    # Check if we should exit.
+                    if self.should_exit:
+                        break
 
-                # Sync metagraph and potentially set weights.
-                self.sync()
+                    # Sync metagraph and potentially set weights.
+                    self.sync()
 
-                self.step += 1
+                    self.step += 1
+                time.sleep(5)
 
         # If someone intentionally stops the validator, it'll safely terminate operations.
         except KeyboardInterrupt:
@@ -282,7 +287,7 @@ class BaseValidatorNeuron(BaseNeuron):
 
     def resync_metagraph(self):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""
-        ct.logging.info("resync_metagraph()")
+        ct.logging.trace("resync_metagraph()")
 
         # Copies state of metagraph before syncing.
         previous_metagraph = copy.deepcopy(self.metagraph)
@@ -371,3 +376,4 @@ class BaseValidatorNeuron(BaseNeuron):
         self.step = state["step"]
         self.scores = state["scores"]
         self.hotkeys = state["hotkeys"]
+        ct.logging.debug(f"Loaded validator state\t step: {self.step}\t scores: {self.scores}")

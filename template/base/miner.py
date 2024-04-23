@@ -136,6 +136,7 @@ class BaseMinerNeuron(BaseNeuron):
                 # Sync metagraph and potentially set weights.
                 self.sync()
                 self.step += 1
+                time.sleep(5)
 
         # If someone intentionally stops the miner, it'll safely terminate operations.
         except KeyboardInterrupt:
@@ -196,7 +197,7 @@ class BaseMinerNeuron(BaseNeuron):
 
     def resync_metagraph(self):
         """Resyncs the metagraph and updates the hotkeys and moving averages based on the new metagraph."""
-        ct.logging.info("resync_metagraph()")
+        ct.logging.trace("resync_metagraph()")
 
         # Sync the metagraph.
         self.metagraph.sync(cwtensor=self.cwtensor)

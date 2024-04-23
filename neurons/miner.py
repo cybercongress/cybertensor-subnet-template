@@ -136,7 +136,7 @@ class Miner(BaseMinerNeuron):
         Returns:
             float: A priority score derived from the stake of the calling entity.
 
-        Miners may recieve messages from multiple entities at once. This function determines which request should be
+        Miners may receive messages from multiple entities at once. This function determines which request should be
         processed first. Higher values indicate that the request should be processed first. Lower values indicate
         that the request should be processed later.
 
@@ -147,13 +147,13 @@ class Miner(BaseMinerNeuron):
         caller_uid = self.metagraph.hotkeys.index(
             synapse.dendrite.hotkey
         )  # Get the caller index.
-        prirority = float(
+        priority = float(
             self.metagraph.S[caller_uid]
         )  # Return the stake as the priority.
         ct.logging.trace(
-            f"Prioritizing {synapse.dendrite.hotkey} with value: ", prirority
+            f"Prioritizing {synapse.dendrite.hotkey} with value: ", priority
         )
-        return prirority
+        return priority
 
 
 # This is the main function, which runs the miner.
@@ -161,4 +161,4 @@ if __name__ == "__main__":
     with Miner() as miner:
         while True:
             ct.logging.info("Miner running...", time.time())
-            time.sleep(5)
+            time.sleep(15)
