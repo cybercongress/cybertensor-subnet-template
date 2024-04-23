@@ -128,12 +128,13 @@ class BaseNeuron(ABC):
         """
         # Ensure miner or validator hotkey is still registered on the network.
         self.check_registered()
+        self.metagraph.sync(cwtensor=self.cwtensor)
 
         if self.should_sync_metagraph():
             self.resync_metagraph()
 
-        if self.should_set_weights():
-            self.set_weights()
+            if self.should_set_weights():
+                self.set_weights()
 
         # Always save state.
         self.save_state()

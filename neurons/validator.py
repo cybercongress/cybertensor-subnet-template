@@ -64,10 +64,9 @@ class Validator(BaseValidatorNeuron):
 if __name__ == "__main__":
     with Validator() as validator:
         while True:
-            validator.metagraph.sync()
+            validator.metagraph.sync(cwtensor=validator.cwtensor)
             ct.logging.info(
-                f"Validator running...\t"
-                f"validator is {'alive' if validator.thread and validator.thread.is_alive() else 'down'}\t"
+                f"Validator {'is up and running' if validator.thread and validator.thread.is_alive() else 'is running and not working'}\t"
                 f"step {validator.step if validator.step else '-'}\t"
                 f"block {validator.block if validator.block else None:>,}\t\t"
                 f"blocks until sync {validator.config.neuron.epoch_length - validator.block + validator.metagraph.last_update[validator.uid]}"
