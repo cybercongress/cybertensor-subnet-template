@@ -45,8 +45,6 @@ class Validator(BaseValidatorNeuron):
     def __init__(self, config: Optional[ct.Config] = None):
         super(Validator, self).__init__(config=config)
 
-        self.load_state()
-
         # TODO(developer): Anything specific to your use case you can do here
 
     async def forward(self):
@@ -66,5 +64,20 @@ class Validator(BaseValidatorNeuron):
 if __name__ == "__main__":
     with Validator() as validator:
         while True:
-            ct.logging.info("Validator running...", time.time())
-            time.sleep(5)
+            try:
+                validator.metagraph.sync(cwtensor=validator.cwtensor)
+                ct.logging.info(
+                    f"Validator {'is up and running' if validator.thread and validator.thread.is_alive() else 'is running and not working'}\t"
+                    f"step {validator.step if validator.step else '-'}\t"
+                    f"block {validator.block if validator.block else None:>,}\t\t"
+                    f"blocks until sync {validator.config.neuron.epoch_length - validator.block + validator.metagraph.last_update[validator.uid]}"
+                )
+                if validator.thread is None or not validator.thread.is_alive():
+                    ct.logging.debug("Stopped")
+                    validator.is_running = False
+                    time.sleep(60)
+                    validator.run_in_background_thread()
+            except Exception as e:
+                ct.logging.error(f"[red]Error:[/red] {e}\t[red]trace:[/red] {traceback.format_exc()}")
+
+            time.sleep(15)
