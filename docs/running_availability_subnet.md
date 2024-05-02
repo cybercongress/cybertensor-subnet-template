@@ -12,6 +12,15 @@ Your incentive mechanisms running on the mainnet are open to anyone. They emit r
 - Do not expose your private keys.
 - Do not use your main wallet.
 
+## Infrastructure requirements
+
+Network: Static ip address, open ports 9000 and 10000
+CPU: 2 cores
+RAM: 4 GB
+HDD: < 1 TB
+Connection: 30+Mbps, Stable and low-latency connection
+Software: Ubuntu 20.04 LTS / 22.04 LTS
+
 ## Steps
 
 ## 1. Install your subnet template
