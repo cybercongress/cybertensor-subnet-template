@@ -14,12 +14,17 @@ Your incentive mechanisms running on the mainnet are open to anyone. They emit r
 
 ## Infrastructure requirements
 
-Network: Static ip address, open ports 9000 and 10000
-CPU: 2 cores
-RAM: 4 GB
-HDD: < 1 TB
-Connection: 30+Mbps, Stable and low-latency connection
-Software: Ubuntu 20.04 LTS / 22.04 LTS
+- Network
+  - recommended static ip address
+  - open ports for miner (default: 10000) and validator (default: 9000)
+  - 10+Mbps connection, Stable and low-latency connection
+- Hardware
+  - CPU: 2 cores
+  - RAM: 4 GB
+  - HDD: < 1 TB
+- Software
+  - OS: Ubuntu 20.04 LTS / 22.04 LTS
+  - Python: >=3.9.6, <3.12
 
 ## Steps
 
