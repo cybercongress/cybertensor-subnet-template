@@ -128,7 +128,6 @@ class BaseNeuron(ABC):
         """
         # Ensure miner or validator hotkey is still registered on the network.
         self.check_registered()
-        self.metagraph.sync(cwtensor=self.cwtensor)
 
         if self.should_sync_metagraph():
             self.resync_metagraph()
@@ -155,6 +154,7 @@ class BaseNeuron(ABC):
         """
         Check if enough epoch blocks have elapsed since the last checkpoint to sync.
         """
+        self.metagraph.sync(cwtensor=self.cwtensor)
         return (
             self.block - self.metagraph.last_update[self.uid]
         ) > self.config.neuron.epoch_length
