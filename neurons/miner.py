@@ -19,9 +19,11 @@
 # DEALINGS IN THE SOFTWARE.
 
 import time
+import traceback
 import typing
 
 import cybertensor as ct
+from grpc._channel import _InactiveRpcError
 
 # import base miner class which takes care of most of the boilerplate
 from template.base.miner import BaseMinerNeuron
@@ -44,7 +46,7 @@ class Miner(BaseMinerNeuron):
 
     def save_state(self):
         # TODO(developer): State saving you can do here
-        ct.logging.trace('Miner.save_state function is not implemented')
+        pass
 
     async def forward(
             self, synapse: Dummy
@@ -160,5 +162,14 @@ class Miner(BaseMinerNeuron):
 if __name__ == "__main__":
     with Miner() as miner:
         while True:
-            ct.logging.info("Miner running...", time.time())
+            try:
+                ct.logging.info(f"Miner running...  block {miner.block if miner.block else None:>,}\t\t")
+                if miner.thread is None or not miner.thread.is_alive():
+                    ct.logging.debug("Stopped")
+                    miner.is_running = False
+                    time.sleep(60)
+                    miner.run_in_background_thread()
+            except _InactiveRpcError as e:
+                ct.logging.error(f"[red]Error:[/red] {e}\t[red]trace:[/red] {traceback.format_exc()}")
+
             time.sleep(15)
