@@ -18,12 +18,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import traceback
 import time
+import traceback
 from typing import Optional
 
 import cybertensor as ct
+from grpc._channel import _InactiveRpcError
 
+# import base validator class which takes care of most of the boilerplate
 from template.base.validator import BaseValidatorNeuron
 from template.validator import forward
 
@@ -77,7 +79,7 @@ if __name__ == "__main__":
                     validator.is_running = False
                     time.sleep(60)
                     validator.run_in_background_thread()
-            except Exception as e:
+            except _InactiveRpcError as e:
                 ct.logging.error(f"[red]Error:[/red] {e}\t[red]trace:[/red] {traceback.format_exc()}")
 
             time.sleep(15)
