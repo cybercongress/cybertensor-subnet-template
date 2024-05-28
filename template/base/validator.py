@@ -68,9 +68,6 @@ class BaseValidatorNeuron(BaseNeuron):
             self.metagraph.n, dtype=torch.float32, device=self.device
         )
 
-        # Init sync with the network. Updates the metagraph.
-        self.sync()
-
         # Serve axon to enable external connections.
         if not self.config.neuron.axon_off:
             self.serve_axon()
@@ -144,7 +141,7 @@ class BaseValidatorNeuron(BaseNeuron):
         """
 
         # Check that validator is registered on the network.
-        self.sync()
+        self.check_registered()
 
         ct.logging.info(f"Validator starting at block: {self.block}")
 
@@ -309,14 +306,13 @@ class BaseValidatorNeuron(BaseNeuron):
 
         # Check to see if the metagraph has changed size.
         # If so, we need to add new hotkeys and moving averages.
-        if len(self.hotkeys) < len(self.metagraph.hotkeys):
-            # Update the size of the moving average scores.
-            new_moving_average = torch.zeros((self.metagraph.n)).to(
-                self.device
-            )
-            min_len = min(len(self.hotkeys), len(self.scores))
-            new_moving_average[:min_len] = self.scores[:min_len]
-            self.scores = new_moving_average
+
+        min_len = min(len(self.hotkeys), len(self.scores))
+        if min_len < len(self.metagraph.hotkeys):
+            # Update the size of the scores.
+            self.scores = torch.cat(
+                (self.scores[:min_len], torch.zeros(len(self.metagraph.hotkeys) - min_len))
+            ).to(self.device)
 
         # Update the hotkeys.
         self.hotkeys = copy.deepcopy(self.metagraph.hotkeys)
@@ -354,7 +350,8 @@ class BaseValidatorNeuron(BaseNeuron):
     def save_state(self):
         """Saves the state of the validator to a file."""
         ct.logging.info("Saving validator state.")
-        ct.logging.debug(f"Saving validator state in the {self.config.neuron.full_path + '/state.pt'}.")
+        ct.logging.debug(f"Saving validator state in the {self.config.neuron.full_path + '/state.pt'}, "
+                         f"scores: {self.scores}.")
 
         # Save the state of the validator to file.
         torch.save(

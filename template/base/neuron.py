@@ -96,7 +96,7 @@ class BaseNeuron(ABC):
         else:
             self.wallet = ct.Wallet(config=self.config)
             self.cwtensor = ct.cwtensor(config=self.config)
-            self.metagraph = self.cwtensor.metagraph(self.config.netuid)
+            self.metagraph = self.cwtensor.metagraph(netuid=self.config.netuid)
 
         ct.logging.info(f"Wallet: {self.wallet}")
         ct.logging.info(f"Cwtensor: {self.cwtensor}")
@@ -134,9 +134,7 @@ class BaseNeuron(ABC):
 
             if self.should_set_weights():
                 self.set_weights()
-
-        # Always save state.
-        self.save_state()
+                self.save_state()
 
     def check_registered(self):
         # --- Check for registration.
