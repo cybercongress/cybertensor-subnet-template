@@ -54,7 +54,7 @@ def get_random_uids(
             if uid_is_not_excluded:
                 candidate_uids.append(uid)
 
-    # Check if candidate_uids contain enough for querying, if not grab all avaliable uids
+    # Check if candidate_uids contain enough for querying, if not grab all available uids
     available_uids = candidate_uids
     # If k is larger than the number of available uids, set k to the number of available uids.
     k = min(k, len(available_uids))

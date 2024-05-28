@@ -204,7 +204,7 @@ Stake:
 Run the subnet miner:
 
 ```bash
-python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug  --cwtensor.network=space-pussy --axon.port=9000
+python neurons/miner.py --netuid=1  --wallet.name=miner --wallet.hotkey=default --logging.debug --logging.logging_dir=miner_logs --logging.record_log --cwtensor.network=space-pussy --axon.port=9000
 ```
 
 You will see the below terminal output:
@@ -216,7 +216,7 @@ You will see the below terminal output:
 Run the subnet validator:
 
 ```bash
-python neurons/validator.py --netuid=1  --wallet.name=validator --wallet.hotkey=default --logging.debug --cwtensor.network=space-pussy --axon.port=10000
+python neurons/validator.py --netuid=1  --wallet.name=validator --wallet.hotkey=default --logging.debug --logging.logging_dir=validator_logs --logging.record_log --cwtensor.network=space-pussy --axon.port=10000
 ```
 
 You will see the below terminal output:
